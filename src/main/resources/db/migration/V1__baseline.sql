@@ -1,0 +1,2 @@
+-- Flyway baseline
+-- Database schema intentionally starts here
