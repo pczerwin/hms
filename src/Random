@@ -1,52 +1,189 @@
+🧭 The Correct Next Phases (In Order)
+PHASE 1 — Lock Security Skeleton (Infrastructure)
+Goal
+Ensure every future controller is secure by default.
+What to do
 
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
+Replace Spring Security’s auto‑generated password with:
 
- :: Spring Boot ::                (v4.0.5)
+explicit configuration
+explicit admin user definition
 
-2026-03-29T23:49:45.453+02:00  INFO 32204 --- [           main] c.effectivehygiene.hms.HmsApplication    : Starting HmsApplication using Java 17.0.17 with PID 32204 (/Users/pczerwin/IdeaProjects/hms/target/classes started by pczerwin in /Users/pczerwin/IdeaProjects/hms)
-2026-03-29T23:49:45.456+02:00  INFO 32204 --- [           main] c.effectivehygiene.hms.HmsApplication    : No active profile set, falling back to 1 default profile: "default"
-2026-03-29T23:49:45.695+02:00  INFO 32204 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-29T23:49:45.703+02:00  INFO 32204 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 4 ms. Found 0 JPA repository interfaces.
-2026-03-29T23:49:45.863+02:00  INFO 32204 --- [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
-2026-03-29T23:49:45.867+02:00  INFO 32204 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-03-29T23:49:45.867+02:00  INFO 32204 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
-2026-03-29T23:49:45.884+02:00  INFO 32204 --- [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 398 ms
-2026-03-29T23:49:46.024+02:00  INFO 32204 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-03-29T23:49:46.080+02:00  INFO 32204 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5e67a490
-2026-03-29T23:49:46.081+02:00  INFO 32204 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-03-29T23:49:46.099+02:00  INFO 32204 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8 (MySQL 8.4)
-2026-03-29T23:49:46.115+02:00  WARN 32204 --- [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
-2026-03-29T23:49:46.132+02:00  INFO 32204 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.012s)
-2026-03-29T23:49:46.144+02:00  INFO 32204 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `hygiene_app`: 1
-2026-03-29T23:49:46.145+02:00  INFO 32204 --- [           main] o.f.core.internal.command.DbMigrate      : Schema `hygiene_app` is up to date. No migration necessary.
-2026-03-29T23:49:46.173+02:00  INFO 32204 --- [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-03-29T23:49:46.191+02:00  INFO 32204 --- [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
-2026-03-29T23:49:46.336+02:00  INFO 32204 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-29T23:49:46.367+02:00  INFO 32204 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8]
-	Database driver: MySQL Connector/J
-	Database dialect: MySQLDialect
-	Database version: 8.4.8
-	Default catalog/schema: hygiene_app/undefined
-	Autocommit mode: undefined/unknown
-	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
-	JDBC fetch size: none
-	Pool: DataSourceConnectionProvider
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-03-29T23:49:46.476+02:00  INFO 32204 --- [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-29T23:49:46.479+02:00  INFO 32204 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-29T23:49:46.617+02:00  WARN 32204 --- [           main] .s.a.UserDetailsServiceAutoConfiguration :
 
-Using generated security password: dc6fb955-e6c5-48d2-9635-d7b7646af7f5
+Confirm:
 
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
+login required for all endpoints
+logout works
+session-based auth
+no public APIs
 
-2026-03-29T23:49:46.634+02:00  INFO 32204 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-03-29T23:49:46.699+02:00  INFO 32204 --- [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
-2026-03-29T23:49:46.702+02:00  INFO 32204 --- [           main] c.effectivehygiene.hms.HmsApplication    : Started HmsApplication in 1.437 seconds (process running for 1.707)
+
+
+Outcome
+✅ You never have to retrofit security
+✅ Every new feature is secure by default
+
+This step is small but foundational.
+
+
+PHASE 2 — Design Core Database Schema (V2 Migration)
+Goal
+Define the truth model for your application.
+What to do
+Create V2__core_tables.sql, including:
+
+employee
+document (ref + version, current flag)
+training_instance
+training_instance_employee (join)
+training_instance_document (join)
+audit_log
+
+Decide explicitly:
+
+PKs & FKs
+NOT NULL rules
+soft-delete flags
+indexing strategy (for matrix queries)
+UTF‑8 defaults
+immutability guarantees
+
+Outcome
+✅ Database becomes authoritative
+✅ Audit/compliance requirements enforced structurally
+✅ Schema is versioned and reproducible
+
+This is the most important technical step.
+
+
+PHASE 3 — Map Entities to Existing Tables
+Goal
+Use Hibernate only as a mapping layer.
+What to do
+
+Create JPA entities that match the schema exactly
+No auto DDL
+No schema assumptions
+No cascading surprises
+
+Outcome
+✅ Clean, predictable persistence
+✅ Easy SQL debugging
+✅ No “Hibernate magic” issues
+
+PHASE 4 — Implement Audit Logging (Cross‑Cutting)
+Goal
+Ensure every data change is recorded automatically.
+What to do
+
+Define audit record structure
+Implement:
+
+service-layer audit hooks
+or AOP-based audit capture
+
+
+Log:
+
+entity
+operation
+old/new state
+user
+timestamp
+
+
+
+Outcome
+✅ Compliance guarantee
+✅ No forgotten audit logic
+✅ Confidence in system integrity
+
+PHASE 5 — Build MVP Features (Vertical Slices)
+Now you can build features end‑to‑end, one at a time:
+Recommended Order
+
+
+Employee CRUD
+
+Simple
+Teaches patterns
+Used everywhere else
+
+
+
+Document CRUD
+
+Versioning logic
+“current version” enforcement
+
+
+
+Training Instance Creation
+
+Immutable records
+Multi-employee
+Multi-document
+
+
+
+Training Matrix View
+
+Derived status logic
+Read‑only, calculated
+No persistence hacks
+
+
+
+Outcome
+✅ Working MVP
+✅ Realistic final project
+✅ Solid demonstration of engineering judgment
+
+PHASE 6 — Minimal Frontend
+Only after the backend is stable:
+
+Simple forms
+No SPA complexity
+Focus on correctness, not polish
+Show flows clearly for reviewers
+
+
+📌 Suggested Commit Strategy
+At this stage, commits should align with architecture boundaries:
+
+Configure explicit Spring Security
+Add core database schema (V2)
+Map employee entity
+Add employee CRUD
+Implement audit logging
+Add document management
+Add training instance creation
+Add training matrix query
+
+This makes your repo readable as a story.
+
+✅ What I Recommend You Do Next (Immediate)
+The single best next step is:
+👉 Phase 1: Add explicit Spring Security skeleton
+Why:
+
+It affects everything
+It’s small
+It removes uncertainty
+It prevents bad habits later
+
+After that, we go straight into V2__core_tables.sql.
+
+If You Agree
+Say:
+
+“Let’s implement explicit Spring Security configuration”
+
+and I’ll:
+
+give you a minimal config
+explain every line
+keep it production‑safe
+ensure nothing conflicts with later DB work
+
+You are now transitioning from setup to real system building — and you’re doing it the right way.
