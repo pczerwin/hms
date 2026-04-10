@@ -1,0 +1,246 @@
+SESSION NOTES — HMS (Hygiene Dept Management System)
+Date: 2026-04-10
+Topic focus: Phase 1 completion (timezone + verification) + Phase 2 completion (error handling, security JSON errors, logging/MDC, tests)
+
+=====================================================
+0) CONTEXT / GOAL
+=====================================================
+- Building compliance/audit-oriented Spring Boot web app (MVP training management).
+- Following a phased plan: Phase 1 (timezones) then Phase 2 (error handling).
+- Aim: consistent UTC timestamps, no implicit timezone conversions, consistent error contract, audit-friendly logs.
+
+=====================================================
+1) PHASE 1 — TIME ZONE & DATE HANDLING (DONE)
+=====================================================
+Configured/validated:
+- Use Instant for system/audit timestamps.
+- Use LocalDate for expiry dates and training start/end dates.
+- Avoid java.util.Date and java.sql.Timestamp in domain/entities/DTOs.
+
+App config:
+- Jackson: UTC + ISO strings (not numeric timestamps).
+  spring.jackson.time-zone: UTC
+  spring.jackson.serialization.write-dates-as-timestamps: false
+
+Hibernate:
+- Force JDBC timezone:
+  spring.jpa.properties.hibernate.jdbc.time_zone=UTC
+
+MySQL:
+- Planned: MySQL server/session timezone UTC, JDBC URL uses serverTimezone=UTC.
+
+Verification:
+- Implemented/ran tests:
+  - HmsApplicationTests (contextLoads)
+  - MySqlTimezoneRoundTripTest (write Instant -> DB -> read -> equals)
+- Confirmed both tests pass using DEV profile.
+
+Notes:
+- “Verify timestamps stored == timestamps read” can be done before real schema exists using a temporary table in a test.
+
+=====================================================
+2) RUNNING TESTS AGAINST DEV PROFILE (FIXED)
+=====================================================
+Problem:
+- @SpringBootTest tests failed due to missing datasource URL / no active profile.
+
+Fix:
+- Activate dev profile during tests (e.g. @ActiveProfiles("dev") or setting SPRING_PROFILES_ACTIVE=dev).
+- Ensure IntelliJ test run config has env vars if datasource config uses ${...}.
+- Optionally disable Flyway in tests that don’t need migrations yet:
+  @SpringBootTest(properties="spring.flyway.enabled=false")
+
+Result:
+- Tests pass on live DEV DB.
+
+=====================================================
+3) PHASE 2 — ERROR HANDLING (COMPLETE)
+=====================================================
+Implemented:
+A) Error Response Contract
+- ApiErrorResponse (single consistent error DTO):
+  - timestamp (Instant / UTC)
+  - status (int)
+  - code (ErrorCode enum)
+  - message (safe human-readable)
+  - path (request URI)
+  - (optional) details reserved for future (not required for MVP)
+
+B) Central Exception Handling
+- Global @RestControllerAdvice:
+  - MethodArgumentNotValidException -> 400 VALIDATION_FAILED
+  - DomainException -> ex.status + ex.code
+  - AccessDeniedException -> 403 FORBIDDEN (controller-layer cases)
+  - Exception (catch-all) -> 500 INTERNAL_ERROR (safe response)
+
+C) Domain Exceptions
+- DomainException base carries:
+  - ErrorCode code
+  - HttpStatus status
+  - message
+- Specific exceptions created:
+  - ImmutableRecordException
+  - InvalidTrainingException
+  - EntityNotFoundException
+  - InactiveEntityException
+
+D) Security (401/403)
+- Custom handlers added so security failures return same ApiErrorResponse JSON:
+  - RestAuthenticationEntryPoint -> 401 UNAUTHENTICATED
+  - RestAccessDeniedHandler -> 403 FORBIDDEN
+
+E) Logging Rules
+- Client never sees stack traces.
+- Server logs full exception details (warn/error with exception object).
+- User/entity IDs included via:
+  - CurrentUser helper (SecurityContextHolder) for username
+  - entity IDs in exception messages and/or log statements
+
+=====================================================
+4) SECURITY CONFIG — JSON 401/403 FOR /api/** (COMPLETE)
+=====================================================
+Why:
+- Security errors occur in filter chain BEFORE controllers -> @ControllerAdvice won’t catch.
+- Need JSON responses for /api/** while keeping browser redirect behaviour for UI pages.
+
+Matcher change due to Spring Security version:
+- AntPathRequestMatcher was not usable (deprecated/removed depending on version).
+- Replaced with PathPatternRequestMatcher.
+
+Implementation:
+- Define matcher:
+  var apiMatcher = PathPatternRequestMatcher.pathPattern("/api/**");
+
+- Configure HttpSecurity.exceptionHandling:
+  - defaultAuthenticationEntryPointFor(new RestAuthenticationEntryPoint(mapper), apiMatcher)
+  - defaultAccessDeniedHandlerFor(new RestAccessDeniedHandler(mapper), apiMatcher)
+
+Form login:
+- Keep formLogin for UI, defaultSuccessUrl("/home", true)
+
+CSRF:
+- Disabled for MVP (csrf.disable()) — revisit later once browser POST forms exist.
+
+=====================================================
+5) JACKSON 3 / SPRING BOOT 4 MIGRATION ISSUE (RESOLVED)
+=====================================================
+Observed:
+- DI mismatch / “ObjectMapper is red”
+- Type mismatch:
+  tools.jackson.databind.json.JsonMapper cannot be converted to com.fasterxml.jackson.databind.ObjectMapper
+
+Root cause:
+- Spring Boot 4 defaults to Jackson 3:
+  - core mapper types live in tools.jackson.*
+- Must not mix Jackson 2 (com.fasterxml...) mapper types with Jackson 3 (tools.jackson...) mapper types.
+
+Fix rule (VERY IMPORTANT):
+- Use ONE mapper type consistently across project:
+  - tools.jackson.databind.json.JsonMapper (preferred)
+- Remove any usage of:
+  com.fasterxml.jackson.databind.ObjectMapper
+
+Actions taken:
+- Updated SecurityConfig + security handlers to use JsonMapper consistently.
+- Kept jackson annotations imports where applicable (annotations may still be com.fasterxml.jackson.annotation.*)
+
+=====================================================
+6) LOGGING / MDC (ADDED & VERIFIED)
+=====================================================
+Goal:
+- Include request correlation metadata in every log line:
+  - requestId
+  - user
+  - path
+
+Implementation:
+A) MDC Filter
+- Added LoggingContextFilter extends OncePerRequestFilter:
+  - Set MDC keys at start of request:
+    MDC.put("requestId", UUID or X-Request-Id header)
+    MDC.put("user", CurrentUser.usernameOrSystem())
+    MDC.put("path", request.getRequestURI())
+  - Clear MDC in finally:
+    MDC.clear()
+
+B) CurrentUser helper
+- Utility method returns username, or "SYSTEM" if not authenticated/available.
+- Note: “anonymousUser” can exist as a technical placeholder in SecurityContext; we normalize to SYSTEM if needed.
+
+C) Logback config
+- Added src/main/resources/logback-spring.xml to print MDC values:
+  - pattern includes:
+    [req=%X{requestId}] [user=%X{user}] [path=%X{path}]
+- Pitfall fixed:
+  - Logback failed to start due to extra blank line BEFORE <?xml ...?>.
+  - XML declaration must be first character in the file.
+
+=====================================================
+7) PHASE 2 TESTS (ADDED & PASSING)
+=====================================================
+Added Phase 2 integration tests (MockMvc-based), covering:
+2.1 Validation error returns ApiErrorResponse contract (400 + VALIDATION_FAILED)
+2.2 Security:
+    - /api/** unauthenticated returns 401 JSON (UNAUTHENTICATED)
+    - /api/** forbidden returns 403 JSON (FORBIDDEN)
+2.3 Logging/MDC:
+    - Captures log events via Logback ListAppender
+    - Asserts MDC contains requestId/user/path on the “Ping called” log event
+
+Test design notes:
+- Tests exclude DB/JPA/Flyway auto-config to stay fast and not depend on MySQL:
+  - Use @ImportAutoConfiguration(exclude = { DataSourceAutoConfiguration, HibernateJpaAutoConfiguration, FlywayAutoConfiguration })
+  - spring.flyway.enabled=false
+- Added tiny test-only controller endpoints under /api/** inside test config:
+  - GET /api/ping -> logs "Ping called" (used to assert MDC)
+  - GET /api/admin-only -> protected with @PreAuthorize("hasRole('ADMIN')") to produce 403
+  - POST /api/test/validate -> triggers validation errors via DTO constraints
+
+Dependency note:
+- jakarta.validation.* was red until adding:
+  - spring-boot-starter-validation
+
+IntelliJ note:
+- MockMvc helper methods (get/status/content/jsonPath) were red until adding correct static imports.
+
+=====================================================
+8) CURRENT STATUS / NEXT TODO
+=====================================================
+DONE:
+- Phase 1 complete (timezone foundation + DB round-trip test).
+- Phase 2 complete:
+  - error contract
+  - controller advice exception handling
+  - domain exceptions
+  - security 401/403 JSON handlers for /api/**
+  - MDC logging filter + logback pattern
+  - Phase 2 tests (2.1, 2.2, 2.3) passing
+
+NEXT:
+- Commit “Phase 2 complete” (after removing temporary controller code if any).
+- Begin Phase 3 (validation strategy separation) + Phase 4 (Flyway schema).
+
+=====================================================
+9) QUICK REFERENCE SNIPPETS (FINAL SHAPE)
+=====================================================
+Security matcher:
+- import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+- var apiMatcher = PathPatternRequestMatcher.pathPattern("/api/**");
+
+Jackson mapper type:
+- import tools.jackson.databind.json.JsonMapper;
+- constructor SecurityConfig(JsonMapper jsonMapper) { ... }
+- security handlers accept JsonMapper
+
+MDC keys used:
+- requestId, user, path
+
+Logback pattern includes:
+- %X{requestId} %X{user} %X{path}
+
+Validation dependency:
+- spring-boot-starter-validation
+
+=====================================================
+END OF NOTES
+=====================================================

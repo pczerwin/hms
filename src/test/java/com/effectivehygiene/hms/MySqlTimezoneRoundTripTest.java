@@ -14,7 +14,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 @ActiveProfiles("dev")
-@SpringBootTest
+@SpringBootTest(properties = "spring.flyway.enabled=false")
 class MySqlTimezoneRoundTripTest {
 
     @Autowired
@@ -40,6 +40,11 @@ class MySqlTimezoneRoundTripTest {
                 "SELECT ts FROM tz_smoke WHERE id = 1",
                 Timestamp.class
         );
+
+
+        String sessionTz = jdbc.queryForObject("SELECT @@session.time_zone", String.class);
+        assertThat(sessionTz).isIn("UTC", "+00:00");
+
 
         Instant actual = readTs.toInstant();
 
