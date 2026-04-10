@@ -1,0 +1,40 @@
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  # -----------------------------
+  # Datasource (local MySQL)
+  # -----------------------------
+  datasource:
+    url: >
+      jdbc:mysql://localhost:3306/hygiene_app
+      ?useSSL=false
+      &serverTimezone=UTC
+      &useUnicode=true
+      &characterEncoding=UTF-8
+    username: root
+    password: asdasdasd
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # -----------------------------
+  # JPA / Hibernate (dev visibility)
+  # -----------------------------
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        connection:
+          characterEncoding: UTF-8
+          CharSet: UTF-8
+          useUnicode: true
+
+# -------------------------------------------------
+# Logging (developer-friendly)
+# -------------------------------------------------
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
