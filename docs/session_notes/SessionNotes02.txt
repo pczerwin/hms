@@ -1,0 +1,259 @@
+SESSION NOTES — HMS (Hygiene Management System)
+DATE: 2026‑04‑11
+SESSION SCOPE: Phase 4 completion → Phase 7A (Employee CRUD) → Postman auth and automation
+SESSION RESULT: Employee master‑data slice fully implemented, tested, and demo‑ready
+
+
+CONTEXT SNAPSHOT
+
+
+Application: HMS (Hygiene Dept Management System)
+Tech Stack: Spring Boot, Spring Security (session‑based), Spring Data JPA, MySQL 8
+Architecture: Database‑first, Hibernate used only for mapping, manual schema control
+Security: Form login, server‑side HTTP session (JSESSIONID cookie)
+API Style: REST, JSON, /api/** endpoints secured
+Timezone Strategy: UTC enforced across app and DB access
+Testing Strategy: Manual API testing via Postman (no automated tests yet)
+
+
+PHASE 4 — DATABASE SCHEMA (FINALIZED)
+
+
+Decisions:
+
+Flyway intentionally skipped for MVP
+Schema managed via manual SQL in repository
+Main schema file: schema_v1.sql
+Sample data file: data_initialisation_v1.sql
+ENGINE explicitly set to InnoDB for all tables
+Foreign keys defined inline during CREATE TABLE
+FOREIGN_KEY_CHECKS disabled and re‑enabled during schema reset
+Session‑level UTC timezone enforced, not GLOBAL
+SET GLOBAL time_zone deliberately removed from schema
+
+Schema characteristics:
+
+BIGINT AUTO_INCREMENT primary keys
+Soft delete via active BOOLEAN flag
+Immutable tables:
+
+TrainingInstance
+DocumentVersion
+AuditLog
+
+
+Join tables used for many‑to‑many relationships:
+
+training_trainee
+training_document
+
+
+
+Verification:
+
+Schema applied successfully via mysql CLI
+Sample data inserted successfully
+Referential integrity verified manually
+
+
+
+PHASE 7A — EMPLOYEE MASTER DATA (COMPLETE)
+
+
+2.1 Employee Entity
+
+Annotated with @Entity and @Table(name="employee")
+Fields:
+id (BIGINT, identity)
+employeeNumber (String, optional, unique business key)
+firstName
+lastName
+department
+jobRole
+active (soft delete flag)
+createdAt (Instant, UTC)
+updatedAt (Instant, UTC)
+Lifecycle callbacks:
+@PrePersist sets createdAt
+@PreUpdate sets updatedAt
+No relationships defined yet (intentional)
+
+2.2 Repository
+
+Interface extends JpaRepository<Employee, Long>
+Uses Spring Data JPA derived queries:
+existsByEmployeeNumber
+findByEmployeeNumber
+No method bodies implemented manually
+
+2.3 Service
+Responsibilities:
+
+Enforce business rules
+Handle soft deletion semantics
+Validate uniqueness of employeeNumber
+Prevent updates on inactive employees
+
+Rules implemented:
+
+employeeNumber must be unique if provided
+update forbidden when active=false
+deactivate is idempotent
+no physical deletes
+
+Exceptions:
+
+MVP uses IllegalStateException
+Domain‑specific exceptions deferred
+
+2.4 Controller
+Base path: /api/employees
+Endpoints:
+
+POST   /api/employees            (create)
+GET    /api/employees            (list active only)
+PUT    /api/employees/{id}       (update)
+PATCH  /api/employees/{id}/deactivate (soft delete)
+
+Notes:
+
+Uses ResponseEntity
+Exposes entity directly (no DTOs yet)
+Relies on already‑implemented global error handling
+
+
+
+SECURITY + POSTMAN AUTH (VERIFIED)
+
+
+Security model:
+
+Spring Security form login
+Session‑based authentication
+JSESSIONID stored in cookie
+/api/** endpoints require authentication
+CSRF disabled for /api/** (MVP decision)
+
+Postman behavior:
+
+Postman does NOT auto‑authenticate
+Manual POST /login required
+After login, Postman stores and reuses JSESSIONID cookie
+No Authorization headers/tokens needed
+
+Verification:
+
+GET /api/employees returns 200 only after login
+Returns 401 without valid session
+
+
+
+POSTMAN COLLECTION STRUCTURE
+
+
+Collection name: HMS API (Local)
+Folders and requests:
+Auth
+
+POST Login
+
+Employees
+
+POST   Employees – Create
+GET    Employees – List Active
+PUT    Employees – Update by ID
+PATCH  Employees – Deactivate
+
+Variables (collection scope):
+
+baseUrl
+employeeId
+employeeNumber
+
+Path variables:
+
+Spring {id} replaced by Postman {{employeeId}}
+Never use literal {id} in Postman URLs
+
+
+
+POSTMAN AUTOMATION (POST‑RESPONSE SCRIPTS)
+
+
+Purpose:
+
+Capture generated IDs
+Auto‑increment business identifiers for demo flow
+
+Used Post‑response script (new Postman UI terminology):
+Script logic:
+
+Runs when response code == 201
+Parses JSON response
+Extracts employee ID
+Extracts numeric portion from employeeNumber string
+Increments number
+Saves both to collection variables
+
+Working script:
+if (pm.response.code === 201) {
+const response = pm.response.json();
+const match = response.employeeNumber.match(/(\D*)(\d+)/);
+const prefix = match[1];
+const number = parseInt(match[2], 10);
+pm.collectionVariables.set("employeeId", response.id);
+pm.collectionVariables.set("employeeNumber", prefix + (number + 1));
+}
+Result:
+
+employeeId stored and reused automatically
+employeeNumber incremented for next create
+Manual copying avoided
+
+
+
+VERIFIED END‑TO‑END FLOWS
+
+
+
+POST create employee → 201
+Duplicate employeeNumber → error (business rule)
+PUT update active employee → 200
+PATCH deactivate → 204
+Deactivated employee excluded from GET list
+PATCH deactivate twice → idempotent, no error
+
+
+
+CURRENT STATE AND NEXT STEPS
+
+
+Completed:
+
+Phase 4: Database schema + sample data
+Phase 7A: Employee CRUD
+Security and Postman auth
+Postman automation
+
+Explicitly not done yet:
+
+DTOs
+Validation annotations
+Domain‑specific exceptions
+Document CRUD
+Training module
+
+Recommended next phase:
+
+Phase 3 — DTOs + Validation
+
+Introduce request/response DTOs
+Add @Valid constraints
+Stop exposing entities directly
+Improve API error semantics
+
+
+
+
+SESSION END STATE
+System is stable, demo‑ready at Employee level, Postman flows validated, and architecture prepared for DTO introduction or replication for Documents and Training modules.
