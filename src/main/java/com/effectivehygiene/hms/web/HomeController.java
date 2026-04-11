@@ -26,7 +26,8 @@ public class HomeController {
     @GetMapping("/timeinstance")
     public Map<String, Instant> timeInstanceTest() {
         return Map.of(
-                "now Instance.parse", Instant.parse("2026-04-10T10:00:00Z")
+                "format check of Instance.parse", Instant.parse("2026-04-10T10:00:00Z"),
+                "now actual time", Instant.now()
         );
     }
 

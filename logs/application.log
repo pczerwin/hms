@@ -1,0 +1,88 @@
+2026-04-10T23:18:10.508Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] Starting HmsApplication using Java 17.0.17 with PID 96709 (/Users/pczerwin/IdeaProjects/hms/target/classes started by pczerwin in /Users/pczerwin/IdeaProjects/hms)
+2026-04-10T23:18:10.509Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] The following 1 profile is active: "dev"
+2026-04-10T23:18:10.581Z INFO  o.h.validator.internal.util.Version - [req=] [user=] [path=] HV000001: Hibernate Validator 9.0.1.Final
+2026-04-10T23:18:10.779Z INFO  o.s.d.r.c.RepositoryConfigurationDelegate - [req=] [user=] [path=] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-10T23:18:10.790Z INFO  o.s.d.r.c.RepositoryConfigurationDelegate - [req=] [user=] [path=] Finished Spring Data repository scanning in 8 ms. Found 0 JPA repository interfaces.
+2026-04-10T23:18:10.975Z INFO  o.s.boot.tomcat.TomcatWebServer - [req=] [user=] [path=] Tomcat initialized with port 8080 (http)
+2026-04-10T23:18:10.978Z INFO  o.a.coyote.http11.Http11NioProtocol - [req=] [user=] [path=] Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-10T23:18:10.979Z INFO  o.a.catalina.core.StandardService - [req=] [user=] [path=] Starting service [Tomcat]
+2026-04-10T23:18:10.979Z INFO  o.a.catalina.core.StandardEngine - [req=] [user=] [path=] Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-10T23:18:11.001Z INFO  o.s.b.w.c.s.WebApplicationContextInitializer - [req=] [user=] [path=] Root WebApplicationContext: initialization completed in 478 ms
+2026-04-10T23:18:11.142Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Starting...
+2026-04-10T23:18:11.193Z INFO  com.zaxxer.hikari.pool.HikariPool - [req=] [user=] [path=] HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@78eafad
+2026-04-10T23:18:11.193Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Start completed.
+2026-04-10T23:18:11.209Z INFO  org.flywaydb.core.FlywayExecutor - [req=] [user=] [path=] Database: jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8 (MySQL 8.4)
+2026-04-10T23:18:11.217Z WARN  o.f.c.i.database.base.Database - [req=] [user=] [path=] Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-04-10T23:18:11.240Z INFO  o.f.core.internal.command.DbValidate - [req=] [user=] [path=] Successfully validated 1 migration (execution time 00:00.016s)
+2026-04-10T23:18:11.251Z INFO  o.f.core.internal.command.DbMigrate - [req=] [user=] [path=] Current version of schema `hygiene_app`: 1
+2026-04-10T23:18:11.252Z INFO  o.f.core.internal.command.DbMigrate - [req=] [user=] [path=] Schema `hygiene_app` is up to date. No migration necessary.
+2026-04-10T23:18:11.284Z INFO  org.hibernate.orm.jpa - [req=] [user=] [path=] HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-10T23:18:11.300Z INFO  org.hibernate.orm.core - [req=] [user=] [path=] HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-04-10T23:18:11.435Z INFO  o.s.o.j.p.SpringPersistenceUnitInfo - [req=] [user=] [path=] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-10T23:18:11.471Z INFO  o.hibernate.orm.connections.pooling - [req=] [user=] [path=] HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.4.8
+	Default catalog/schema: hygiene_app/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-10T23:18:11.605Z INFO  org.hibernate.orm.core - [req=] [user=] [path=] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-10T23:18:11.607Z INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - [req=] [user=] [path=] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-10T23:18:11.733Z INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - [req=] [user=] [path=] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-04-10T23:18:11.892Z INFO  o.a.coyote.http11.Http11NioProtocol - [req=] [user=] [path=] Starting ProtocolHandler ["http-nio-8080"]
+2026-04-10T23:18:11.897Z INFO  o.s.boot.tomcat.TomcatWebServer - [req=] [user=] [path=] Tomcat started on port 8080 (http) with context path '/'
+2026-04-10T23:18:11.900Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] Started HmsApplication in 1.589 seconds (process running for 2.044)
+2026-04-10T23:19:03.437Z INFO  o.s.boot.tomcat.GracefulShutdown - [req=] [user=] [path=] Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-10T23:19:03.441Z INFO  o.s.boot.tomcat.GracefulShutdown - [req=] [user=] [path=] Graceful shutdown complete
+2026-04-10T23:19:03.445Z INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - [req=] [user=] [path=] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-10T23:19:03.446Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Shutdown initiated...
+2026-04-10T23:19:03.450Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Shutdown completed.
+2026-04-10T23:19:04.732Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] Starting HmsApplication using Java 17.0.17 with PID 97031 (/Users/pczerwin/IdeaProjects/hms/target/classes started by pczerwin in /Users/pczerwin/IdeaProjects/hms)
+2026-04-10T23:19:04.733Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] The following 1 profile is active: "dev"
+2026-04-10T23:19:04.805Z INFO  o.h.validator.internal.util.Version - [req=] [user=] [path=] HV000001: Hibernate Validator 9.0.1.Final
+2026-04-10T23:19:04.994Z INFO  o.s.d.r.c.RepositoryConfigurationDelegate - [req=] [user=] [path=] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-10T23:19:05.005Z INFO  o.s.d.r.c.RepositoryConfigurationDelegate - [req=] [user=] [path=] Finished Spring Data repository scanning in 8 ms. Found 0 JPA repository interfaces.
+2026-04-10T23:19:05.185Z INFO  o.s.boot.tomcat.TomcatWebServer - [req=] [user=] [path=] Tomcat initialized with port 8080 (http)
+2026-04-10T23:19:05.189Z INFO  o.a.coyote.http11.Http11NioProtocol - [req=] [user=] [path=] Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-10T23:19:05.190Z INFO  o.a.catalina.core.StandardService - [req=] [user=] [path=] Starting service [Tomcat]
+2026-04-10T23:19:05.190Z INFO  o.a.catalina.core.StandardEngine - [req=] [user=] [path=] Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-10T23:19:05.215Z INFO  o.s.b.w.c.s.WebApplicationContextInitializer - [req=] [user=] [path=] Root WebApplicationContext: initialization completed in 468 ms
+2026-04-10T23:19:05.372Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Starting...
+2026-04-10T23:19:05.441Z INFO  com.zaxxer.hikari.pool.HikariPool - [req=] [user=] [path=] HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@71b0289b
+2026-04-10T23:19:05.442Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Start completed.
+2026-04-10T23:19:05.461Z INFO  org.flywaydb.core.FlywayExecutor - [req=] [user=] [path=] Database: jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8 (MySQL 8.4)
+2026-04-10T23:19:05.468Z WARN  o.f.c.i.database.base.Database - [req=] [user=] [path=] Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-04-10T23:19:05.489Z INFO  o.f.core.internal.command.DbValidate - [req=] [user=] [path=] Successfully validated 1 migration (execution time 00:00.015s)
+2026-04-10T23:19:05.500Z INFO  o.f.core.internal.command.DbMigrate - [req=] [user=] [path=] Current version of schema `hygiene_app`: 1
+2026-04-10T23:19:05.501Z INFO  o.f.core.internal.command.DbMigrate - [req=] [user=] [path=] Schema `hygiene_app` is up to date. No migration necessary.
+2026-04-10T23:19:05.533Z INFO  org.hibernate.orm.jpa - [req=] [user=] [path=] HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-10T23:19:05.548Z INFO  org.hibernate.orm.core - [req=] [user=] [path=] HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-04-10T23:19:05.693Z INFO  o.s.o.j.p.SpringPersistenceUnitInfo - [req=] [user=] [path=] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-10T23:19:05.729Z INFO  o.hibernate.orm.connections.pooling - [req=] [user=] [path=] HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.4.8
+	Default catalog/schema: hygiene_app/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-10T23:19:05.877Z INFO  org.hibernate.orm.core - [req=] [user=] [path=] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-10T23:19:05.881Z INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - [req=] [user=] [path=] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-10T23:19:06.020Z INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - [req=] [user=] [path=] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-04-10T23:19:06.197Z INFO  o.a.coyote.http11.Http11NioProtocol - [req=] [user=] [path=] Starting ProtocolHandler ["http-nio-8080"]
+2026-04-10T23:19:06.204Z INFO  o.s.boot.tomcat.TomcatWebServer - [req=] [user=] [path=] Tomcat started on port 8080 (http) with context path '/'
+2026-04-10T23:19:06.207Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] Started HmsApplication in 1.68 seconds (process running for 1.935)
+2026-04-10T23:35:36.703Z INFO  o.s.boot.tomcat.GracefulShutdown - [req=] [user=] [path=] Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-10T23:35:36.707Z INFO  o.s.boot.tomcat.GracefulShutdown - [req=] [user=] [path=] Graceful shutdown complete
+2026-04-10T23:35:36.710Z INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - [req=] [user=] [path=] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-10T23:35:36.711Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Shutdown initiated...
+2026-04-10T23:35:36.715Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Shutdown completed.
