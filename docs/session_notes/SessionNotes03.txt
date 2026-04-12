@@ -1,0 +1,53 @@
+SESSION_ID: 3
+SESSION_DATE: 2026-04-12
+PROJECT_CONTEXT: Java backend application for tactics/document management (commercial-grade, REST-based)
+
+SUMMARY:
+In this session, work focused on document references and document versions.
+A REST controller for DocumentReference was created and successfully verified using Postman.
+The schema and API were extended to support document names on document versions.
+
+KEY ACCOMPLISHMENTS:
+- Created DocumentReference REST controller
+- Verified DocumentReference endpoints using Postman (CRUD confirmed functional)
+- Extended document_version model to include document_name
+- Mapped database column document_name to entity field docName
+- Updated SQL inserts for document_version so tactical names are stored in document_name instead of comments
+- Applied version-specific naming evolution (e.g. minor wording changes across versions)
+
+TECHNICAL CHANGES:
+- Database:
+  - document_version table now contains column: document_name
+- Entity layer:
+  - document_name mapped to entity field: docName
+- API:
+  - DocumentReference controller operational and tested via Postman
+  - Document versions now carry human-readable, version-specific document names
+
+DESIGN DECISIONS:
+- Tactical names (e.g. High Press, Low Block, Wing Overload) are stored per document version
+- Naming can evolve between versions while keeping historical accuracy
+- document_reference remains a stable identifier (TACT-xxx)
+- document_version holds business-facing naming and lifecycle data
+- Metadata (docName) kept separate from potential binary content/files
+
+EXAMPLES OF VERSIONED NAMING:
+- Wing Overload High Line (v1)
+- High Press – Advanced Execution (v2)
+- Counter Attack → Counter Attack – Quick Transition → Counter‑Attacking Play – Structured Transition
+
+VERIFICATION:
+- DocumentReference controller validated with Postman
+- SQL inserts reviewed for correctness and consistency with domain model
+- No breaking changes introduced to existing document_reference logic
+
+NEXT LOGICAL STEPS (NOT YET DONE):
+- Create controller/service for DocumentVersion
+- Add validation rules (e.g. is_current uniqueness per reference)
+- Introduce DTOs for document creation and versioning
+- Consider file upload endpoint linked to document versions
+
+STATUS:
+Session completed successfully.
+System is stable and ready for next development step.
+END_SESSION: 3
