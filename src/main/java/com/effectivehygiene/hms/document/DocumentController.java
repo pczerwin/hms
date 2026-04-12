@@ -18,6 +18,7 @@ public class DocumentController {
     };
 
     // --------------------
+    // Document reference
     // CREATE DOCUMENT REFERENCE
     // --------------------
 
@@ -29,6 +30,7 @@ public class DocumentController {
 
 
     // --------------------
+    // Document reference
     // LIST ALL ACTIVE REFERENCES
     // --------------------
 
@@ -38,4 +40,42 @@ public class DocumentController {
     }
 
 
+
+    // --------------------
+    // Document version
+    // CREATE DOCUMENT VERSION
+    // --------------------
+
+    @PostMapping("/references/{referenceId}/versions")
+    public ResponseEntity<DocumentVersion> createDocumentVersion(
+            @PathVariable Long referenceId,
+            @RequestBody DocumentVersion documentVersion
+    ) {
+        DocumentVersion createdVersion =
+                documentService.createVersion(referenceId, documentVersion);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdVersion);
+    }
+
+    // --------------------
+    // LIST ALL VERSIONS FOR A DOCUMENT REFERENCE
+    // --------------------
+
+    @GetMapping("/references/{referenceId}/versions")
+    public ResponseEntity<List<DocumentVersion>> getAllVersionsForReference(
+            @PathVariable Long referenceId
+    ) {
+        return ResponseEntity.ok(documentService.getAllVersions(referenceId));
+    }
+
+    // --------------------
+    // GET CURRENT VERSION FOR A DOCUMENT REFERENCE
+    // --------------------
+
+    @GetMapping("/references/{referenceId}/versions/current")
+    public ResponseEntity<DocumentVersion> getCurrentVersion(
+            @PathVariable Long referenceId
+    ) {
+        return ResponseEntity.ok(documentService.getCurrentVersion(referenceId));
+    }
 }

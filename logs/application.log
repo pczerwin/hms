@@ -2508,3 +2508,580 @@ java.lang.IllegalStateException: Document reference already exists: 21
         document_reference dr1_0 
     where
         dr1_0.active=true
+2026-04-12T16:47:12.844Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] Starting HmsApplication using Java 17.0.17 with PID 7320 (/Users/pczerwin/IdeaProjects/hms/target/classes started by pczerwin in /Users/pczerwin/IdeaProjects/hms)
+2026-04-12T16:47:12.845Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] The following 1 profile is active: "dev"
+2026-04-12T16:47:12.965Z INFO  o.h.validator.internal.util.Version - [req=] [user=] [path=] HV000001: Hibernate Validator 9.0.1.Final
+2026-04-12T16:47:13.242Z INFO  o.s.d.r.c.RepositoryConfigurationDelegate - [req=] [user=] [path=] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-12T16:47:13.270Z INFO  o.s.d.r.c.RepositoryConfigurationDelegate - [req=] [user=] [path=] Finished Spring Data repository scanning in 25 ms. Found 3 JPA repository interfaces.
+2026-04-12T16:47:13.441Z INFO  o.s.boot.tomcat.TomcatWebServer - [req=] [user=] [path=] Tomcat initialized with port 8080 (http)
+2026-04-12T16:47:13.445Z INFO  o.a.coyote.http11.Http11NioProtocol - [req=] [user=] [path=] Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-12T16:47:13.445Z INFO  o.a.catalina.core.StandardService - [req=] [user=] [path=] Starting service [Tomcat]
+2026-04-12T16:47:13.445Z INFO  o.a.catalina.core.StandardEngine - [req=] [user=] [path=] Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-12T16:47:13.468Z INFO  o.s.b.w.c.s.WebApplicationContextInitializer - [req=] [user=] [path=] Root WebApplicationContext: initialization completed in 599 ms
+2026-04-12T16:47:13.616Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Starting...
+2026-04-12T16:47:13.673Z INFO  com.zaxxer.hikari.pool.HikariPool - [req=] [user=] [path=] HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@296676c4
+2026-04-12T16:47:13.674Z INFO  com.zaxxer.hikari.HikariDataSource - [req=] [user=] [path=] HikariPool-1 - Start completed.
+2026-04-12T16:47:13.699Z INFO  org.flywaydb.core.FlywayExecutor - [req=] [user=] [path=] Database: jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8 (MySQL 8.4)
+2026-04-12T16:47:13.707Z WARN  o.f.c.i.database.base.Database - [req=] [user=] [path=] Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-04-12T16:47:13.728Z INFO  o.f.core.internal.command.DbValidate - [req=] [user=] [path=] Successfully validated 1 migration (execution time 00:00.016s)
+2026-04-12T16:47:13.740Z INFO  o.f.core.internal.command.DbMigrate - [req=] [user=] [path=] Current version of schema `hygiene_app`: 1
+2026-04-12T16:47:13.742Z INFO  o.f.core.internal.command.DbMigrate - [req=] [user=] [path=] Schema `hygiene_app` is up to date. No migration necessary.
+2026-04-12T16:47:13.775Z INFO  org.hibernate.orm.jpa - [req=] [user=] [path=] HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-12T16:47:13.794Z INFO  org.hibernate.orm.core - [req=] [user=] [path=] HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-04-12T16:47:13.945Z INFO  o.s.o.j.p.SpringPersistenceUnitInfo - [req=] [user=] [path=] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-12T16:47:13.978Z INFO  o.hibernate.orm.connections.pooling - [req=] [user=] [path=] HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/hygiene_app ?useSSL=false &serverTimezone=UTC &useUnicode=true &characterEncoding=UTF-8]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.4.8
+	Default catalog/schema: hygiene_app/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-12T16:47:14.284Z INFO  org.hibernate.orm.core - [req=] [user=] [path=] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-12T16:47:14.287Z INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - [req=] [user=] [path=] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-12T16:47:14.335Z INFO  o.s.d.j.r.q.QueryEnhancerFactories - [req=] [user=] [path=] Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-12T16:47:14.504Z INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - [req=] [user=] [path=] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-04-12T16:47:14.650Z INFO  o.a.coyote.http11.Http11NioProtocol - [req=] [user=] [path=] Starting ProtocolHandler ["http-nio-8080"]
+2026-04-12T16:47:14.655Z INFO  o.s.boot.tomcat.TomcatWebServer - [req=] [user=] [path=] Tomcat started on port 8080 (http) with context path '/'
+2026-04-12T16:47:14.657Z INFO  c.e.hms.HmsApplication - [req=] [user=] [path=] Started HmsApplication in 2.078 seconds (process running for 2.403)
+2026-04-12T16:53:24.421Z INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - [req=] [user=] [path=] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-12T16:53:24.421Z INFO  o.s.web.servlet.DispatcherServlet - [req=] [user=] [path=] Initializing Servlet 'dispatcherServlet'
+2026-04-12T16:53:24.422Z INFO  o.s.web.servlet.DispatcherServlet - [req=] [user=] [path=] Completed initialization in 1 ms
+2026-04-12T16:53:28.356Z DEBUG org.hibernate.SQL - [req=68517dca-d465-40fc-9a9b-4bf7526f8203] [user=admin] [path=/api/documents/references/5/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T16:53:28.549Z DEBUG org.hibernate.SQL - [req=68517dca-d465-40fc-9a9b-4bf7526f8203] [user=admin] [path=/api/documents/references/5/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+    order by
+        dv1_0.version_issue_date desc
+2026-04-12T16:53:52.499Z DEBUG org.hibernate.SQL - [req=892c187e-08e3-4d35-999f-b7482fa740d5] [user=admin] [path=/api/documents/references/1/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T16:53:52.505Z DEBUG org.hibernate.SQL - [req=892c187e-08e3-4d35-999f-b7482fa740d5] [user=admin] [path=/api/documents/references/1/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+    order by
+        dv1_0.version_issue_date desc
+2026-04-12T16:56:14.180Z DEBUG org.hibernate.SQL - [req=a103a734-d475-413c-8db5-b21c04cfe64b] [user=admin] [path=/api/documents/references/1/versions/current] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T16:56:14.196Z DEBUG org.hibernate.SQL - [req=a103a734-d475-413c-8db5-b21c04cfe64b] [user=admin] [path=/api/documents/references/1/versions/current] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T16:56:24.494Z DEBUG org.hibernate.SQL - [req=9d5aeb61-59c2-43ad-b6ea-6926832db834] [user=admin] [path=/api/documents/references/1/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T16:56:24.497Z DEBUG org.hibernate.SQL - [req=9d5aeb61-59c2-43ad-b6ea-6926832db834] [user=admin] [path=/api/documents/references/1/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+    order by
+        dv1_0.version_issue_date desc
+2026-04-12T16:57:27.472Z DEBUG org.hibernate.SQL - [req=3a0ae757-7db5-4025-bd83-259e3a4aa452] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T16:57:27.476Z DEBUG org.hibernate.SQL - [req=3a0ae757-7db5-4025-bd83-259e3a4aa452] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+    order by
+        dv1_0.version_issue_date desc
+2026-04-12T16:57:52.103Z DEBUG org.hibernate.SQL - [req=78f3147e-1e48-47aa-92c0-fc55f40c0a11] [user=admin] [path=/api/documents/references/3/versions/current] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T16:57:52.107Z DEBUG org.hibernate.SQL - [req=78f3147e-1e48-47aa-92c0-fc55f40c0a11] [user=admin] [path=/api/documents/references/3/versions/current] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:07:37.587Z DEBUG org.hibernate.SQL - [req=5905ad2f-2122-4ed3-a5e3-d003d07bef75] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:07:37.590Z DEBUG org.hibernate.SQL - [req=5905ad2f-2122-4ed3-a5e3-d003d07bef75] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:07:37.600Z DEBUG org.hibernate.SQL - [req=5905ad2f-2122-4ed3-a5e3-d003d07bef75] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:07:37.612Z DEBUG org.hibernate.SQL - [req=5905ad2f-2122-4ed3-a5e3-d003d07bef75] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:07:48.352Z DEBUG org.hibernate.SQL - [req=f38a7510-12a7-4099-9a54-d291fb7077b3] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:07:48.355Z DEBUG org.hibernate.SQL - [req=f38a7510-12a7-4099-9a54-d291fb7077b3] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:07:48.358Z DEBUG org.hibernate.SQL - [req=f38a7510-12a7-4099-9a54-d291fb7077b3] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:07:48.361Z DEBUG org.hibernate.SQL - [req=f38a7510-12a7-4099-9a54-d291fb7077b3] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:07:49.998Z DEBUG org.hibernate.SQL - [req=002d466c-4d2b-4086-9242-6cfcb1c0132a] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:07:50.001Z DEBUG org.hibernate.SQL - [req=002d466c-4d2b-4086-9242-6cfcb1c0132a] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:07:50.003Z DEBUG org.hibernate.SQL - [req=002d466c-4d2b-4086-9242-6cfcb1c0132a] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:07:50.006Z DEBUG org.hibernate.SQL - [req=002d466c-4d2b-4086-9242-6cfcb1c0132a] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:08:05.329Z DEBUG org.hibernate.SQL - [req=ba357358-12f8-4c5f-8a13-acd077e49fcd] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:08:05.334Z DEBUG org.hibernate.SQL - [req=ba357358-12f8-4c5f-8a13-acd077e49fcd] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:08:05.339Z DEBUG org.hibernate.SQL - [req=ba357358-12f8-4c5f-8a13-acd077e49fcd] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:08:05.344Z DEBUG org.hibernate.SQL - [req=ba357358-12f8-4c5f-8a13-acd077e49fcd] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:08:09.965Z DEBUG org.hibernate.SQL - [req=04fa6eaf-a374-4a0c-af08-f5df3e456adb] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:08:09.974Z DEBUG org.hibernate.SQL - [req=04fa6eaf-a374-4a0c-af08-f5df3e456adb] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:08:09.982Z DEBUG org.hibernate.SQL - [req=04fa6eaf-a374-4a0c-af08-f5df3e456adb] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:08:09.986Z DEBUG org.hibernate.SQL - [req=04fa6eaf-a374-4a0c-af08-f5df3e456adb] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:08:14.720Z DEBUG org.hibernate.SQL - [req=e0a7cdc9-71c2-4b0e-981c-08d49456ed4a] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:08:14.723Z DEBUG org.hibernate.SQL - [req=e0a7cdc9-71c2-4b0e-981c-08d49456ed4a] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:08:14.726Z DEBUG org.hibernate.SQL - [req=e0a7cdc9-71c2-4b0e-981c-08d49456ed4a] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:08:14.730Z DEBUG org.hibernate.SQL - [req=e0a7cdc9-71c2-4b0e-981c-08d49456ed4a] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:09:14.296Z DEBUG org.hibernate.SQL - [req=a6b81421-21da-4bbb-96cb-41e0c8025964] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:09:14.299Z DEBUG org.hibernate.SQL - [req=a6b81421-21da-4bbb-96cb-41e0c8025964] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:09:14.301Z DEBUG org.hibernate.SQL - [req=a6b81421-21da-4bbb-96cb-41e0c8025964] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:09:14.304Z DEBUG org.hibernate.SQL - [req=a6b81421-21da-4bbb-96cb-41e0c8025964] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?
+2026-04-12T17:09:15.345Z DEBUG org.hibernate.SQL - [req=defc9a1d-b693-4546-aa9e-34213156e75c] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dr1_0.id,
+        dr1_0.active,
+        dr1_0.created_at,
+        dr1_0.mandatory,
+        dr1_0.origin_department,
+        dr1_0.reference_code 
+    from
+        document_reference dr1_0 
+    where
+        dr1_0.id=?
+2026-04-12T17:09:15.349Z DEBUG org.hibernate.SQL - [req=defc9a1d-b693-4546-aa9e-34213156e75c] [user=admin] [path=/api/documents/references/3/versions] 
+    select
+        dv1_0.id,
+        dv1_0.created_at,
+        dv1_0.default_training_validity_days,
+        dv1_0.document_name,
+        dv1_0.document_reference_id,
+        dv1_0.is_current,
+        dv1_0.version,
+        dv1_0.version_issue_date 
+    from
+        document_version dv1_0 
+    where
+        dv1_0.document_reference_id=? 
+        and dv1_0.is_current=true
+2026-04-12T17:09:15.352Z DEBUG org.hibernate.SQL - [req=defc9a1d-b693-4546-aa9e-34213156e75c] [user=admin] [path=/api/documents/references/3/versions] 
+    insert 
+    into
+        document_version
+        (created_at, default_training_validity_days, document_name, document_reference_id, is_current, version, version_issue_date) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-04-12T17:09:15.355Z DEBUG org.hibernate.SQL - [req=defc9a1d-b693-4546-aa9e-34213156e75c] [user=admin] [path=/api/documents/references/3/versions] 
+    update
+        document_version 
+    set
+        default_training_validity_days=?,
+        document_name=?,
+        document_reference_id=?,
+        is_current=?,
+        version=?,
+        version_issue_date=? 
+    where
+        id=?

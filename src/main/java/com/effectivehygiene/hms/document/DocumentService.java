@@ -42,6 +42,7 @@ public class DocumentService {
     }
 
     // --------------------------------------------------
+    // Create reference
     // Create document in Document Reference. Throw exception if reference code exists
     // --------------------------------------------------
 
@@ -55,7 +56,7 @@ public class DocumentService {
     }
 
     // --------------------------------------------------
-    // Create version in Document version.
+    // Create version
     // Throw exception if reference does not exists
     // If reference is NOT active, reactivate it for new version
     // --------------------------------------------------
@@ -90,6 +91,7 @@ public class DocumentService {
     }
 
     // --------------------------------------------------
+    // Document reference
     // Find all active references
     // --------------------------------------------------
 
@@ -98,10 +100,11 @@ public class DocumentService {
     }
 
     // --------------------------------------------------
+    // Document version
     // find all versions (current + outdated) for a doc reference
     // --------------------------------------------------
 
-    public List<DocumentVersion> getVersionsForReference(Long documentReferenceId) {
+    public List<DocumentVersion> getAllVersions(Long documentReferenceId) {
         DocumentReference reference = referenceRepository.findById(documentReferenceId)
                 .orElseThrow(() -> new IllegalStateException(
                         "Document reference not found: id=" + documentReferenceId
@@ -112,6 +115,7 @@ public class DocumentService {
     }
 
     // --------------------------------------------------
+    // Document version
     // Find current version for a doc reference
     // --------------------------------------------------
 
