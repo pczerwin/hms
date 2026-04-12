@@ -23,6 +23,7 @@
 -- ---------------------------------------------------------
 -- SESSION SAFETY
 -- ---------------------------------------------------------
+USE hygiene_app;
 SET time_zone = '+00:00';
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -91,7 +92,9 @@ CREATE TABLE document_reference (
 CREATE TABLE document_version (
                                   id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                   document_reference_id BIGINT NOT NULL,
+                                  document_name VARCHAR(255) NOT NULL,
                                   version VARCHAR(20) NOT NULL,
+                                  version_issue_date DATE NOT NULL,
                                   is_current BOOLEAN NOT NULL DEFAULT FALSE,
                                   default_training_validity_days INT,
                                   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
