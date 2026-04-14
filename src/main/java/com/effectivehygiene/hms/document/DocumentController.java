@@ -1,6 +1,12 @@
 package com.effectivehygiene.hms.document;
 
 
+import com.effectivehygiene.hms.document.dto.CreateDocumentReferenceRequest;
+import com.effectivehygiene.hms.document.dto.CreateDocumentVersionRequest;
+import com.effectivehygiene.hms.document.dto.DocumentMapper;
+import com.effectivehygiene.hms.document.dto.DocumentReferenceResponse;
+import com.effectivehygiene.hms.document.dto.DocumentVersionResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +21,7 @@ public class DocumentController {
 
     public DocumentController(DocumentService documentService) {
         this.documentService = documentService;
-    };
+    }
 
     // --------------------
     // Document reference
@@ -23,9 +29,11 @@ public class DocumentController {
     // --------------------
 
     @PostMapping("/references")
-    public ResponseEntity<DocumentReference> createDocumentReference(@RequestBody DocumentReference documentReference) {
-        DocumentReference newReference = documentService.createReference(documentReference);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newReference);
+    public ResponseEntity<DocumentReferenceResponse> createDocumentReference(
+            @Valid @RequestBody CreateDocumentReferenceRequest request
+    ) {
+        DocumentReference newReference = documentService.createReference(DocumentMapper.toEntity(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(DocumentMapper.toResponse(newReference));
     }
 
 
@@ -35,8 +43,8 @@ public class DocumentController {
     // --------------------
 
     @GetMapping("/references")
-    public ResponseEntity<List<DocumentReference>> getAllActiveDocumentReferences() {
-        return ResponseEntity.ok(documentService.getAllActiveDocumentReferences());
+    public ResponseEntity<List<DocumentReferenceResponse>> getAllActiveDocumentReferences() {
+        return ResponseEntity.ok(DocumentMapper.toReferenceResponseList(documentService.getAllActiveDocumentReferences()));
     }
 
 
@@ -47,14 +55,14 @@ public class DocumentController {
     // --------------------
 
     @PostMapping("/references/{referenceId}/versions")
-    public ResponseEntity<DocumentVersion> createDocumentVersion(
+    public ResponseEntity<DocumentVersionResponse> createDocumentVersion(
             @PathVariable Long referenceId,
-            @RequestBody DocumentVersion documentVersion
+            @Valid @RequestBody CreateDocumentVersionRequest request
     ) {
         DocumentVersion createdVersion =
-                documentService.createVersion(referenceId, documentVersion);
+                documentService.createVersion(referenceId, DocumentMapper.toEntity(request));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdVersion);
+        return ResponseEntity.status(HttpStatus.CREATED).body(DocumentMapper.toResponse(createdVersion));
     }
 
     // --------------------
@@ -62,10 +70,10 @@ public class DocumentController {
     // --------------------
 
     @GetMapping("/references/{referenceId}/versions")
-    public ResponseEntity<List<DocumentVersion>> getAllVersionsForReference(
+    public ResponseEntity<List<DocumentVersionResponse>> getAllVersionsForReference(
             @PathVariable Long referenceId
     ) {
-        return ResponseEntity.ok(documentService.getAllVersions(referenceId));
+        return ResponseEntity.ok(DocumentMapper.toVersionResponseList(documentService.getAllVersions(referenceId)));
     }
 
     // --------------------
@@ -73,9 +81,9 @@ public class DocumentController {
     // --------------------
 
     @GetMapping("/references/{referenceId}/versions/current")
-    public ResponseEntity<DocumentVersion> getCurrentVersion(
+    public ResponseEntity<DocumentVersionResponse> getCurrentVersion(
             @PathVariable Long referenceId
     ) {
-        return ResponseEntity.ok(documentService.getCurrentVersion(referenceId));
+        return ResponseEntity.ok(DocumentMapper.toResponse(documentService.getCurrentVersion(referenceId)));
     }
 }

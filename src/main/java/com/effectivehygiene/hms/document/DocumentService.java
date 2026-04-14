@@ -1,5 +1,8 @@
 package com.effectivehygiene.hms.document;
 
+import com.effectivehygiene.hms.domain.exception.DuplicateEntityException;
+import com.effectivehygiene.hms.domain.exception.EntityNotFoundException;
+import com.effectivehygiene.hms.domain.exception.MissingCurrentVersionException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +51,7 @@ public class DocumentService {
 
     public DocumentReference createReference(DocumentReference reference) {
         if (referenceRepository.existsByReferenceCode(reference.getReferenceCode())) {
-            throw new IllegalStateException(
+            throw new DuplicateEntityException(
                     "Document reference already exists: " + reference.getReferenceCode()
             );
         }
@@ -66,7 +69,7 @@ public class DocumentService {
             DocumentVersion newVersion
     ) {
         DocumentReference parentReference = referenceRepository.findById(documentReferenceId)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Document reference not found: id=" + documentReferenceId
                 ));
 
@@ -106,7 +109,7 @@ public class DocumentService {
 
     public List<DocumentVersion> getAllVersions(Long documentReferenceId) {
         DocumentReference reference = referenceRepository.findById(documentReferenceId)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Document reference not found: id=" + documentReferenceId
                 ));
 
@@ -121,13 +124,13 @@ public class DocumentService {
 
     public DocumentVersion getCurrentVersion(Long documentReferenceId) {
         DocumentReference reference = referenceRepository.findById(documentReferenceId)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Document reference not found: id=" + documentReferenceId
                 ));
 
         return versionRepository
                 .findByDocumentReferenceAndIsCurrentTrue(reference)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new MissingCurrentVersionException(
                         "No current version exists for document reference: " + documentReferenceId
                 ));
     }

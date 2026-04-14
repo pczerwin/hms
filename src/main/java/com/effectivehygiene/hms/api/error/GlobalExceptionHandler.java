@@ -1,8 +1,7 @@
-package com.effectivehygiene.hms.domain.exception;
+package com.effectivehygiene.hms.api.error;
 
 
-import com.effectivehygiene.hms.api.error.ApiErrorResponse;
-import com.effectivehygiene.hms.api.error.ErrorCode;
+import com.effectivehygiene.hms.domain.exception.DomainException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

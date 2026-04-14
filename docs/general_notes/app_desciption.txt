@@ -1,0 +1,203 @@
+
+Hygiene Department Management Web Application
+Overview
+This project is a web-based management system designed to support the hygiene and sanitation department within a food manufacturing facility. The application focuses primarily on training record management, supported by controlled document (SOP) references and extended later with task management and reporting functionality. The system is designed in accordance with Quality Management System (QMS) principles aligned with BRC standards, with an emphasis on auditability, traceability, and historical integrity.
+The system is intended exclusively for managerial and supervisory users. Operational employees do not have direct system access; instead, all training and compliance records are managed centrally by authorised users.
+The application is developed incrementally, with the training management module as the initial Minimum Viable Product (MVP). Additional modules (documents, tasks, dashboards) are planned for later phases.
+
+
+Key Principles
+Compliance-Oriented Design
+All records are retained historically. Physical deletion is avoided in favour of soft deletion using active/inactive flags, ensuring that historical data remains accessible for audit and compliance purposes.
+Auditability
+All changes to system data are recorded in a centralised audit log, capturing who changed what and when. This supports internal reviews and external audits in line with BRC-style expectations.
+Controlled Access
+All backend APIs require authenticated access. The initial implementation supports a single admin-level role, suitable for a small management team. The design allows for future expansion to role-based access control.
+Incremental Scalability
+The MVP targets a single-site operation with a small number of users. The design avoids unnecessary complexity while remaining extensible for future growth when additional requirements become clear.
+
+
+User Model
+System Users
+System users are managers or supervisors responsible for:
+	· Maintaining employee records
+	· Managing training records
+	· Managing document references (including SOPs)
+	· Reviewing compliance-related information
+Initially, all users have administrative access. Additional roles and permissions may be introduced in future versions.
+Employees
+	· Employees do not authenticate or access the system directly.
+	· Each employee is identified by a unique employee ID (up to 10 digits).
+	· Additional attributes include:
+			o Name and surname
+			o Department or sub-department
+			o Job role
+	· Employees may be marked inactive, but all historical training records remain permanently stored.
+
+
+Documents
+Documents represent controlled references used for training and (later) task execution. SOPs are treated as a category of document, not as a separate entity.
+Document Model
+	· Each document is uniquely identified by a (document reference, version) pair.
+	· A document reference may exist in multiple immutable versions.
+	· A new version is represented as a new document record.
+	· Exactly one version per document reference is marked as the current version.
+	· Documents are stored as references only in the MVP (no file uploads).
+Document Attributes
+	· Document reference
+	· Version
+	· Mandatory flag (Yes / No)
+	· Origin department:
+			o Hygiene
+			o Health & Safety
+			o Technical
+			o Production
+			o Induction
+			o Other
+	· Date created
+	· Default training validity period
+Full document storage (PDFs, images) is planned post-MVP.
+
+
+Core Functional Areas
+1. Training Management (MVP)
+Training management is the core focus of the initial release.
+Training Records
+Training is recorded as a completed training instance, representing an immutable, historical compliance record.
+Each training instance includes:
+	· Trainer name (typed)
+	· Trainer type:
+			o Employee
+			o Contractor
+			o OEM
+	· One or more trainee employees
+	· Training start date
+	· Training end date
+	· Training duration (stored as free-form text, e.g. “2 hours”)
+	· One or more document references with specific versions
+	· Training expiry date (default or overridden)
+	· Optional comments
+	· Trainer signature (typed in MVP)
+	· Trainee signatures (typed in MVP)
+Rules
+	· Documents must exist in the system before training can be issued.
+	· Training may only be issued against the current version of a document.
+	· All trainees within a training instance share the same expiry date.
+	· If different expiry rules are required, separate training instances must be created.
+Immutability
+Once created:
+	· Training instances cannot be edited.
+	· Records are retained for a minimum of 3 years.
+	· Training records are never deleted.
+	· Older training records may become outdated as document versions or validity periods change.
+
+
+Training Status Model (Derived)
+Training compliance status is derived, not stored, for each employee × document reference pair. The matrix is calculated dynamically from training records and current document versions.
+The derived states are:
+	· Complete
+Employee trained on the current document version and training is still valid.
+	· Outdated Document
+Employee trained, but a newer document version exists.
+	· Outdated Training
+Employee trained on the current document version, but the training has expired.
+	· Incomplete
+No valid training record exists.
+These statuses support compliance monitoring while avoiding redundant or conflicting stored data.
+
+
+2. Document / SOP Management (Post-MVP)
+Future document management functionality includes:
+	· Structured document metadata
+	· Immutable historical versions
+	· Mandatory review dates
+	· Configurable default training validity
+	· Tasks always referencing the latest document version
+	· File uploads (PDFs, images)
+	· Printable SOPs (PDF export)
+
+
+3. Task Management (Post-MVP)
+Tasks represent hygiene-related operational activities.
+Planned functionality includes:
+	· Periodic scheduled tasks (e.g. every 12h, daily, weekly, monthly)
+	· Ad-hoc tasks initiated by managers or other departments
+	· Automatically generated “Due Today” lists
+	· Optional document references
+	· Completion comments or justification for delays
+	· Tasks becoming non-editable after a defined period
+	· Outstanding tasks returning to waiting lists if not completed
+
+
+4. KPI Dashboard (Post-MVP)
+A management dashboard providing aggregated insights such as:
+	· Task completion rates (last 1 / 7 / 30 / 90 days)
+	· Training completion percentages by department
+	· Number of overdue or outdated training instances
+	· Outstanding and overdue tasks
+KPIs do not require real-time updates; periodic recalculation is acceptable.
+
+
+5. User Management (Initial & Future)
+Initial Implementation
+	· Username and password authentication
+	· Single admin-level role
+	· Server-side session management
+	· Logout and session timeout
+	· No password recovery or self-service features
+Future Expansion
+	· Role-based access control
+	· Expanded permission models
+	· Multi-site support
+	· Extended authentication mechanisms if required
+
+
+Audit Logging
+The system maintains a centralised audit log capturing:
+	· Entity modified
+	· Operation type (create / update / deactivate)
+	· Previous value and new value (where applicable)
+	· User responsible
+	· Timestamp
+Audit logs are accessible through a generic, filterable view, supporting date-range searches for compliance and review purposes.
+
+
+Data & Storage Strategy
+	· Relational database: MySQL 8.x
+	· Database-first approach with explicit schema control
+	· Schema versioning managed using Flyway
+	· Hibernate used strictly for mapping, not schema generation
+	· UTF‑8 (utf8mb4) enforced at database and application level
+	· Soft delete via active/inactive flags
+	· No file or image storage in MVP
+	· Schema designed to preserve historical integrity and traceability
+
+
+MVP Scope (Final Project)
+Included
+✅ User authentication (single admin role)
+✅ Employee management (CRUD with soft deletion)
+✅ Document reference management (CRUD, version metadata only)
+✅ Immutable training instance creation
+✅ Dynamically derived employee training matrix view
+✅ Centralised audit logging
+✅ Basic web frontend using an open-source JavaScript template
+Explicitly Excluded
+	· File, image, or PDF handling
+	· Task scheduling
+	· KPI dashboard automation
+	· Electronic signatures
+	· Notifications and reminders
+	· Multi-site functionality
+	· Cloud deployment optimisations
+
+
+Future Scope (High-Level)
+Future versions may introduce:
+	· Full document storage and PDF export
+	· Task scheduling and automation
+	· Reminder and notification system
+	· Electronic signatures
+	· Advanced reporting and data export
+	· Multi-site and multi-role access control
+	· Cloud-native deployment

@@ -1,6 +1,11 @@
 package com.effectivehygiene.hms.employee;
 
 
+import com.effectivehygiene.hms.employee.dto.CreateEmployeeRequest;
+import com.effectivehygiene.hms.employee.dto.EmployeeMapper;
+import com.effectivehygiene.hms.employee.dto.EmployeeResponse;
+import com.effectivehygiene.hms.employee.dto.UpdateEmployeeRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +27,9 @@ public class EmployeeController {
     // --------------------
 
     @PostMapping
-    public ResponseEntity<Employee> create(@RequestBody Employee employee) {
-        Employee created = employeeService.create(employee);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
+        Employee created = employeeService.create(EmployeeMapper.toEntity(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(EmployeeMapper.toResponse(created));
     }
 
     // --------------------
@@ -32,8 +37,8 @@ public class EmployeeController {
     // --------------------
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllActive() {
-        return ResponseEntity.ok(employeeService.getAllActive());
+    public ResponseEntity<List<EmployeeResponse>> getAllActive() {
+        return ResponseEntity.ok(EmployeeMapper.toResponseList(employeeService.getAllActive()));
     }
 
     // --------------------
@@ -41,12 +46,12 @@ public class EmployeeController {
     // --------------------
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> update(
+    public ResponseEntity<EmployeeResponse> update(
             @PathVariable Long id,
-            @RequestBody Employee employee
+            @Valid @RequestBody UpdateEmployeeRequest request
     ) {
-        Employee updated = employeeService.update(id, employee);
-        return ResponseEntity.ok(updated);
+        Employee updated = employeeService.update(id, request);
+        return ResponseEntity.ok(EmployeeMapper.toResponse(updated));
     }
 
     // --------------------
@@ -59,4 +64,3 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 }
-

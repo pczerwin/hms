@@ -1,7 +1,4 @@
-package com.effectivehygiene.hms.config.security;
-
-import com.effectivehygiene.hms.security.RestAccessDeniedHandler;
-import com.effectivehygiene.hms.security.RestAuthenticationEntryPoint;
+package com.effectivehygiene.hms.security;
 
 
 import org.springframework.context.annotation.Bean;

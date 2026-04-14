@@ -1,6 +1,11 @@
 package com.effectivehygiene.hms.employee;
 
 
+import com.effectivehygiene.hms.domain.exception.DuplicateEntityException;
+import com.effectivehygiene.hms.domain.exception.EntityNotFoundException;
+import com.effectivehygiene.hms.domain.exception.InactiveEntityException;
+import com.effectivehygiene.hms.employee.dto.EmployeeMapper;
+import com.effectivehygiene.hms.employee.dto.UpdateEmployeeRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +30,7 @@ public class EmployeeService {
         if (employee.getEmployeeNumber() != null &&
                 employeeRepository.existsByEmployeeNumber(employee.getEmployeeNumber())) {
 
-            throw new IllegalStateException(
+            throw new DuplicateEntityException(
                     "Employee with number " + employee.getEmployeeNumber() + " already exists"
             );
         }
@@ -37,9 +42,10 @@ public class EmployeeService {
     // READ
     // --------------------
 
+
     public Employee getById(Long id) {
         return employeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Employee not found: id=" + id
                 ));
     }
@@ -55,30 +61,25 @@ public class EmployeeService {
     // UPDATE
     // --------------------
 
-    public Employee update(Long id, Employee updated) {
+    public Employee update(Long id, UpdateEmployeeRequest request) {
 
         Employee existing = getById(id);
 
         if (!existing.isActive()) {
-            throw new IllegalStateException(
+            throw new InactiveEntityException(
                     "Cannot update inactive employee id=" + id
             );
         }
 
-        if (updated.getEmployeeNumber() != null &&
-                !updated.getEmployeeNumber().equals(existing.getEmployeeNumber()) &&
-                employeeRepository.existsByEmployeeNumber(updated.getEmployeeNumber())) {
+        EmployeeMapper.updateEntity(existing, request);
 
-            throw new IllegalStateException(
-                    "Employee number already in use: " + updated.getEmployeeNumber()
+        if (existing.getEmployeeNumber() != null &&
+                employeeRepository.existsByEmployeeNumberAndIdNot(existing.getEmployeeNumber(), id)) {
+
+            throw new DuplicateEntityException(
+                    "Employee number already in use: " + existing.getEmployeeNumber()
             );
         }
-
-        existing.setEmployeeNumber(updated.getEmployeeNumber());
-        existing.setFirstName(updated.getFirstName());
-        existing.setLastName(updated.getLastName());
-        existing.setDepartment(updated.getDepartment());
-        existing.setJobRole(updated.getJobRole());
 
         return employeeRepository.save(existing);
     }
@@ -98,4 +99,3 @@ public class EmployeeService {
         employeeRepository.save(employee);
     }
 }
-
