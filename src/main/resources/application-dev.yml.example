@@ -6,6 +6,8 @@ spring:
 
   # -----------------------------
   # Datasource (local MySQL)
+  # Copy this file to application-dev.yml and fill in your local credentials.
+  # application-dev.yml is gitignored and must never be committed.
   # -----------------------------
   datasource:
     url: >
@@ -14,8 +16,8 @@ spring:
       &serverTimezone=UTC
       &useUnicode=true
       &characterEncoding=UTF-8
-    username: root
-    password: asdasdasd
+    username: YOUR_DB_USERNAME
+    password: YOUR_DB_PASSWORD
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # -----------------------------
@@ -38,3 +40,4 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
+

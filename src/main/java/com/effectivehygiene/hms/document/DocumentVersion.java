@@ -2,6 +2,7 @@ package com.effectivehygiene.hms.document;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -24,7 +25,7 @@ public class DocumentVersion {
     private DocumentReference documentReference;
 
     @Column(name = "document_name", nullable = false, length = 255)
-    private String docName;
+    private String documentName;
 
     @Column(name = "version", nullable = false, length = 20)
     private String version;
@@ -39,6 +40,7 @@ public class DocumentVersion {
     private boolean isCurrent = false;
 
     @Column(name = "default_training_validity_days")
+    @Min(value = 0, message = "Default training validity days must be zero or positive (or null)")
     private Integer defaultTrainingValidityDays;
 
     /**
@@ -74,12 +76,12 @@ public class DocumentVersion {
         this.documentReference = documentReference;
     }
 
-    public String getDocName() {
-        return docName;
+    public String getDocumentName() {
+        return documentName;
     }
 
-    public void setDocName(String docName) {
-        this.docName = docName;
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
     }
 
     public String getVersion() {
