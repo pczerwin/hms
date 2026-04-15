@@ -8,18 +8,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.time.Instant;
 
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final JsonMapper objectMapper;
-
-    public RestAuthenticationEntryPoint(JsonMapper jsonMapper) {
-        this.objectMapper = jsonMapper;
-    }
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
 
     @Override
     public void commence(HttpServletRequest request,
@@ -36,6 +35,6 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         response.setStatus(401);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), body);
+        MAPPER.writeValue(response.getOutputStream(), body);
     }
 }
