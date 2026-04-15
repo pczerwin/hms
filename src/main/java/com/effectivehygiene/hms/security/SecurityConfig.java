@@ -7,14 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -51,18 +46,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Provides the MVP in-memory admin account used for login during early development.
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("admin123"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin);
-    }
 
     // Defines BCrypt as the hashing algorithm for stored user passwords.
     @Bean

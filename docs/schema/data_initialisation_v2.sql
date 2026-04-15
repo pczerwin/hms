@@ -23,8 +23,17 @@ DELETE FROM training_instance;
 DELETE FROM document_version;
 DELETE FROM document_reference;
 DELETE FROM employee;
+DELETE FROM users;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ---------------------------------------------------------
+-- SYSTEM USERS (LOGIN CREDENTIALS)
+-- password: admin123 (BCrypt cost 10)
+-- To regenerate: run HashGeneratorTest in the test suite
+-- ---------------------------------------------------------
+INSERT INTO users (username, password_hash, active) VALUES
+    ('admin', '$2a$10$DJAHukX108M13ngCZpQQwOsDMHwGbGvHRc3NYBAZvkEvclXBh8cwq', TRUE);
 
 -- ---------------------------------------------------------
 -- EMPLOYEES (OPERATIVES)

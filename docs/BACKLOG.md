@@ -6,6 +6,15 @@
 
 **Key Principle:** Each active ticket preserves compliance invariants (soft-delete, immutability, traceability), tests are integration-style matching `Phase2ErrorHandlingAndLoggingIT` patterns, and `/api/**` endpoints follow established error contract.
 
+## Progress Update (2026-04-15)
+
+- HMS-1 complete: domain exception hardening is in place (`InactiveEntityException` now mapped to `409/INACTIVE_ENTITY`).
+- HMS-2 complete: `TrainingInstance`, `TrainingTrainee`, `TrainingDocument` entities and repositories implemented.
+- HMS-3 in progress: training create service implemented with transactional save across `training_instance`, `training_trainee`, `training_document`; read methods pending.
+- HMS-4 in progress: controller create endpoint implemented as `POST /api/training/instances` with request/response DTOs.
+- Training create integration tests added: `ApiTrainingInstanceCreateIT` (201 success + 409 inactive employee contract).
+- Schema/seed support updated: collation guardrails + rerun-safe temp table cleanup + multi-document training seed in `data_initialisation_v2.sql`.
+
 ---
 
 ## Epic 1: Stabilize Error Handling & Domain Exceptions
@@ -44,6 +53,8 @@
 ## Epic 2: Training Core Module (Create-Only, Immutable)
 
 ### HMS-2: Create Training domain models and persistence layer
+**Status:** Complete
+
 **Goal:** Add JPA entities for immutable training instances, attendee linkage, and document version tracking.
 
 **In Scope:**
@@ -77,6 +88,8 @@
 ---
 
 ### HMS-3: Implement TrainingService with business rules (create-only)
+**Status:** In Progress
+
 **Goal:** Enforce training creation rules; no edit/delete flows.
 
 **In Scope:**
@@ -117,10 +130,13 @@
 ---
 
 ### HMS-4: Create TrainingController with POST endpoint
+**Status:** In Progress
+
 **Goal:** Expose immutable training creation API.
 
 **In Scope:**
 - `POST /api/trainings` with request DTO: `CreateTrainingRequest` (trainer_name, trainer_type, dates, trainees[], doc_versions[], expiry_date, comments).
+- `POST /api/training/instances` with request DTO: `CreateTrainingInstanceRequest` (trainer fields, dates, `employeeIds[]`, `documentVersionIds[]`).
 - Use `@Valid` for basic validation (non-null, date ordering).
 - Call `TrainingService.createTraining()`.
 - Return `201 Created` with created instance + IDs.
@@ -148,7 +164,7 @@
 
 **Estimate:** S (1–2 hours).
 
-**Files Affected:** `training/TrainingController.java`, `training/dto/CreateTrainingRequest.java`.
+**Files Affected:** `training/TrainingController.java`, `training/dto/CreateTrainingInstanceRequest.java`, `training/dto/TrainingInstanceResponse.java`.
 
 ---
 
@@ -422,20 +438,20 @@
 
 ## Backlog Summary
 
-| Ticket | Title | Epic | Estimate | Dependencies |
-|--------|-------|------|----------|--------------|
-| HMS-1 | Migrate IllegalStateException to DomainException | 1 | S | None |
-| HMS-2 | Create Training domain models | 2 | S | Schema |
-| HMS-3 | Implement TrainingService (create-only) | 2 | M | HMS-2, HMS-1 |
-| HMS-4 | Create TrainingController POST | 2 | S | HMS-3, HMS-1 |
-| HMS-5 | Add TrainingService read methods | 2 | XS | HMS-2 |
-| HMS-6 | Create TrainingController GET | 2 | S | HMS-5 |
-| HMS-7 | Implement TrainingComplianceService | 3 | M | HMS-3, HMS-2 |
-| HMS-8 | Create ComplianceMatrixController | 3 | M | HMS-7 |
-| HMS-9 | Create AuditLog model | 4 | S | Schema |
-| HMS-10 | Implement AuditService | 4 | M | HMS-9, integrate into services |
-| HMS-11 | Create AuditController | 4 | S | HMS-10 |
-| HMS-12 | Wiring and smoke test | 5 | M | All above |
+| Ticket | Title | Epic | Status | Estimate | Dependencies |
+|--------|-------|------|--------|----------|--------------|
+| HMS-1 | Migrate IllegalStateException to DomainException | 1 | Complete | S | None |
+| HMS-2 | Create Training domain models | 2 | Complete | S | Schema |
+| HMS-3 | Implement TrainingService (create-only) | 2 | In Progress | M | HMS-2, HMS-1 |
+| HMS-4 | Create TrainingController POST | 2 | In Progress | S | HMS-3, HMS-1 |
+| HMS-5 | Add TrainingService read methods | 2 | Planned | XS | HMS-2 |
+| HMS-6 | Create TrainingController GET | 2 | Planned | S | HMS-5 |
+| HMS-7 | Implement TrainingComplianceService | 3 | Planned | M | HMS-3, HMS-2 |
+| HMS-8 | Create ComplianceMatrixController | 3 | Planned | M | HMS-7 |
+| HMS-9 | Create AuditLog model | 4 | Deferred | S | Schema |
+| HMS-10 | Implement AuditService | 4 | Deferred | M | HMS-9, integrate into services |
+| HMS-11 | Create AuditController | 4 | Deferred | S | HMS-10 |
+| HMS-12 | Wiring and smoke test | 5 | Planned | M | All above |
 
 **Total Estimated Effort:** ~23–25 hours (XS + 9×S + 5×M = 0.5 + 9 + 10 = 19.5; add overhead/reviews).
 

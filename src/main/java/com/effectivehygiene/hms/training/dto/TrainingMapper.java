@@ -13,6 +13,10 @@ public final class TrainingMapper {
         returnInstance.setTrainingDuration(normalizeRequiredText(request.getTrainingDuration()));
         returnInstance.setComments(normalizeOptionalText(request.getComments()));
         returnInstance.setTrainerSignature(normalizeRequiredText(request.getTrainerSignature()));
+        returnInstance.setTrainerType(request.getTrainerType());
+        returnInstance.setTrainingStartDate(request.getTrainingStartDate());
+        returnInstance.setTrainingEndDate(request.getTrainingEndDate());
+        returnInstance.setTrainingExpiryDate(request.getTrainingExpiryDate());
         return returnInstance;
     }
 

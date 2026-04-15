@@ -50,17 +50,13 @@ public class TrainingService {
         ) {
         TrainingInstance newInstance = TrainingMapper.toEntity(request);
 
-            // Map non-text fields handled outside mapper.
-            newInstance.setTrainerType(request.getTrainerType());
-            newInstance.setTrainingStartDate(request.getTrainingStartDate());
-            newInstance.setTrainingEndDate(request.getTrainingEndDate());
-            newInstance.setTrainingExpiryDate(request.getTrainingExpiryDate());
-
+            // Remove duplicates - employees
             Set<Long> employeeIds = new LinkedHashSet<>(request.getEmployeeIds());
             if (employeeIds.size() != request.getEmployeeIds().size()) {
                 throw new InvalidTrainingException("Duplicate employee IDs are not allowed in one training instance");
             }
 
+            // Remove duplicates - documents
             Set<Long> documentVersionIds = new LinkedHashSet<>(request.getDocumentVersionIds());
             if (documentVersionIds.size() != request.getDocumentVersionIds().size()) {
                 throw new InvalidTrainingException("Duplicate document version IDs are not allowed in one training instance");
