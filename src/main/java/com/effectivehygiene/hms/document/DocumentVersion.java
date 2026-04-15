@@ -20,7 +20,7 @@ public class DocumentVersion {
     @JoinColumn(
             name = "document_reference_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_docver_reference")
+            foreignKey = @ForeignKey(name = "fk_document_version_reference")
     )
     private DocumentReference documentReference;
 
