@@ -1,4 +1,3 @@
-
 -- =========================================================
 -- HMS — Hygiene Management System
 -- MVP DATABASE SCHEMA (Manual, Pre-Flyway)
@@ -96,12 +95,13 @@ CREATE TABLE document_version (
                                   version VARCHAR(20) NOT NULL,
                                   version_issue_date DATE NOT NULL,
                                   is_current BOOLEAN NOT NULL DEFAULT FALSE,
-                                  default_training_validity_days INT,
+                                  default_training_validity_days INT
+                                      CHECK (default_training_validity_days >= 0),
                                   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
                                   CONSTRAINT fk_docver_reference
                                       FOREIGN KEY (document_reference_id)
-                                          REFERENCES document_reference(id)
+                                          REFERENCES document_reference(id),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

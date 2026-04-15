@@ -2,6 +2,7 @@ package com.effectivehygiene.hms.document.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -10,7 +11,7 @@ public class CreateDocumentVersionRequest {
 
     @NotBlank(message = "Document name is required")
     @Size(max = 255, message = "Document name must be at most 255 characters")
-    private String docName;
+    private String documentName;
 
     @NotBlank(message = "Version is required")
     @Size(max = 20, message = "Version must be at most 20 characters")
@@ -23,12 +24,12 @@ public class CreateDocumentVersionRequest {
 
     private Integer defaultTrainingValidityDays;
 
-    public String getDocName() {
-        return docName;
+    public String getDocumentName() {
+        return documentName;
     }
 
-    public void setDocName(String docName) {
-        this.docName = docName;
+    public void setDocumentName(String docName) {
+        this.documentName = docName;
     }
 
     public String getVersion() {
@@ -54,7 +55,7 @@ public class CreateDocumentVersionRequest {
     public void setIsCurrent(Boolean current) {
         isCurrent = current;
     }
-
+    @PositiveOrZero(message = "Default training validity days must be zero or positive (or null)")
     public Integer getDefaultTrainingValidityDays() {
         return defaultTrainingValidityDays;
     }

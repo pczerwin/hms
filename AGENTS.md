@@ -17,7 +17,7 @@
 - When uncertain, prioritize preserving compliance invariants over adding richer UX behavior.
 
 ## Architecture and Boundaries
-- API layer lives in `src/main/java/com/effectivehygiene/hms/*/*Controller.java` and is currently entity-first (controllers accept/return JPA entities directly).
+- API layer lives in `src/main/java/com/effectivehygiene/hms/*/*Controller.java`; controllers use DTOs (request/response) and delegate to services — entities are not returned directly from controllers.
 - Business rules live in services (`employee/EmployeeService.java`, `document/DocumentService.java`) and are marked `@Transactional`.
 - Persistence uses Spring Data repositories per aggregate (`EmployeeRepository`, `DocumentReferenceRepository`, `DocumentVersionRepository`).
 - Startup entry point is `HmsApplication`; no separate hexagonal/adaptor split yet.
@@ -25,9 +25,7 @@
 ## Request + Error Flow (Important)
 - All requests require authentication (`SecurityConfig.securityFilterChain`: `.anyRequest().authenticated()`).
 - `/api/**` gets JSON auth failures via `RestAuthenticationEntryPoint` (401) and `RestAccessDeniedHandler` (403); non-API paths use browser login redirect.
-- Controller/service exceptions are normalized by `domain/exception/GlobalExceptionHandler` into `ApiErrorResponse`.
-- Standard error payload fields are fixed: `timestamp`, `status`, `code`, `message`, `path` (`api/error/ApiErrorResponse.java`).
-- Existing services still throw `IllegalStateException`; these currently map to 500 via the catch-all handler.
+- Controller/service exceptions are normalized by `api/error/GlobalExceptionHandler` into `ApiErrorResponse`. Services throw typed `DomainException` subclasses (e.g. `EntityNotFoundException`, `DuplicateEntityException`) — not `IllegalStateException`.
 
 ## Domain Rules You Must Preserve
 - Employees are soft-deleted (`employee.Employee.active`); deactivate via `PATCH /api/employees/{id}/deactivate` is intentionally idempotent.
@@ -47,7 +45,7 @@
 ## Build/Test Workflows
 - Run app (dev profile): `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
 - Run all tests: `./mvnw test`
-- Run focused integration contract test (no DB auto-config): `./mvnw -Dtest=Phase2ErrorHandlingAndLoggingIT test`
+- Run focused integration tests: `./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT" test`
 - Manual timezone DB verification is in `docs/minor/tz_smoke.sql` (not an automated test — requires live MySQL).
 
 ## Coding Patterns for This Repo
@@ -56,4 +54,9 @@
 - If you introduce DTO endpoints, wire `@Valid` + handler contract consistency (see phase2 integration test for expected JSON shape).
 - Preserve soft-delete and "single current version" semantics; these are core compliance behaviors.
 - Keep log messages useful for forensic tracing since MDC is already configured for request correlation.
+
+## Recent Fixes (April 15, 2026)
+- **Issue 1:** Upgraded `mysql-connector-j` from 8.0.33 → 8.2.0 to resolve CVE-2023-22102 vulnerability.
+- **Issue 2:** Corrected Jackson imports in `SecurityConfig`, `RestAuthenticationEntryPoint`, `RestAccessDeniedHandler` from `tools.jackson.*` → `com.fasterxml.jackson.*` (standard library).
+- **Issue 8:** Added dedicated `@ExceptionHandler` for `InactiveEntityException` in `GlobalExceptionHandler` to return 409 CONFLICT with `ErrorCode.INACTIVE_ENTITY` instead of 500 INTERNAL_ERROR.
 

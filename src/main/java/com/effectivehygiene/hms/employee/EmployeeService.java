@@ -4,10 +4,8 @@ package com.effectivehygiene.hms.employee;
 import com.effectivehygiene.hms.domain.exception.DuplicateEntityException;
 import com.effectivehygiene.hms.domain.exception.EntityNotFoundException;
 import com.effectivehygiene.hms.domain.exception.InactiveEntityException;
-import com.effectivehygiene.hms.employee.dto.EmployeeMapper;
-import com.effectivehygiene.hms.employee.dto.UpdateEmployeeRequest;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,6 +41,7 @@ public class EmployeeService {
     // --------------------
 
 
+    @Transactional(readOnly = true)
     public Employee getById(Long id) {
         return employeeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -50,38 +49,32 @@ public class EmployeeService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     public List<Employee> getAllActive() {
-        return employeeRepository.findAll()
-                .stream()
-                .filter(Employee::isActive)
-                .toList();
+        return employeeRepository.findByActiveTrue();
     }
 
     // --------------------
     // UPDATE
     // --------------------
 
-    public Employee update(Long id, UpdateEmployeeRequest request) {
+    public Employee update(Employee employee) {
 
-        Employee existing = getById(id);
-
-        if (!existing.isActive()) {
+        if (!employee.isActive()) {
             throw new InactiveEntityException(
-                    "Cannot update inactive employee id=" + id
+                    "Cannot update inactive employee id=" + employee.getId()
             );
         }
 
-        EmployeeMapper.updateEntity(existing, request);
-
-        if (existing.getEmployeeNumber() != null &&
-                employeeRepository.existsByEmployeeNumberAndIdNot(existing.getEmployeeNumber(), id)) {
+        if (employee.getEmployeeNumber() != null &&
+                employeeRepository.existsByEmployeeNumberAndIdNot(employee.getEmployeeNumber(), employee.getId())) {
 
             throw new DuplicateEntityException(
-                    "Employee number already in use: " + existing.getEmployeeNumber()
+                    "Employee number already in use: " + employee.getEmployeeNumber()
             );
         }
 
-        return employeeRepository.save(existing);
+        return employeeRepository.save(employee);
     }
 
     // --------------------

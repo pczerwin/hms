@@ -50,7 +50,9 @@ public class EmployeeController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateEmployeeRequest request
     ) {
-        Employee updated = employeeService.update(id, request);
+        Employee existing = employeeService.getById(id);
+        EmployeeMapper.updateEntity(existing, request);
+        Employee updated = employeeService.update(existing);
         return ResponseEntity.ok(EmployeeMapper.toResponse(updated));
     }
 

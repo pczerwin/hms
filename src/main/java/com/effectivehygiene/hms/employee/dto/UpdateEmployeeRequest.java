@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public class UpdateEmployeeRequest {
 
 
-    @Size(max = 15, message = "Employee number must be at most 15 digits")
+    @Size(max = 20, message = "Employee number must be at most 20 digits")
     @Pattern(regexp = "^\\d*$", message = "Employee number must contain only digits")
     private String employeeNumber;
 

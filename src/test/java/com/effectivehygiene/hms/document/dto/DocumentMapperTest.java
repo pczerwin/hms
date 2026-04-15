@@ -27,7 +27,7 @@ class DocumentMapperTest {
     @Test
     void toEntity_version_normalizesTextAndDefaultsCurrentFalse() {
         CreateDocumentVersionRequest request = new CreateDocumentVersionRequest();
-        request.setDocName("  GMP Procedure  ");
+        request.setDocumentName("  GMP Procedure  ");
         request.setVersion("  v1  ");
         request.setVersionIssueDate(LocalDate.of(2026, 4, 13));
         request.setIsCurrent(null);
@@ -35,7 +35,7 @@ class DocumentMapperTest {
 
         DocumentVersion version = DocumentMapper.toEntity(request);
 
-        assertThat(version.getDocName()).isEqualTo("GMP Procedure");
+        assertThat(version.getDocumentName()).isEqualTo("GMP Procedure");
         assertThat(version.getVersion()).isEqualTo("v1");
         assertThat(version.getVersionIssueDate()).isEqualTo(LocalDate.of(2026, 4, 13));
         assertThat(version.isCurrent()).isFalse();

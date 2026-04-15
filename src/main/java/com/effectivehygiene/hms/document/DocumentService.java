@@ -2,9 +2,12 @@ package com.effectivehygiene.hms.document;
 
 import com.effectivehygiene.hms.domain.exception.DuplicateEntityException;
 import com.effectivehygiene.hms.domain.exception.EntityNotFoundException;
+import com.effectivehygiene.hms.document.dto.CreateDocumentReferenceRequest;
 import com.effectivehygiene.hms.domain.exception.MissingCurrentVersionException;
-import jakarta.transaction.Transactional;
+import com.effectivehygiene.hms.document.dto.CreateDocumentVersionRequest;
+import com.effectivehygiene.hms.document.dto.DocumentMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -49,7 +52,9 @@ public class DocumentService {
     // Create document in Document Reference. Throw exception if reference code exists
     // --------------------------------------------------
 
-    public DocumentReference createReference(DocumentReference reference) {
+    public DocumentReference createReference(CreateDocumentReferenceRequest request) {
+        DocumentReference reference = DocumentMapper.toEntity(request);
+
         if (referenceRepository.existsByReferenceCode(reference.getReferenceCode())) {
             throw new DuplicateEntityException(
                     "Document reference already exists: " + reference.getReferenceCode()
@@ -66,8 +71,10 @@ public class DocumentService {
 
     public DocumentVersion createVersion(
             Long documentReferenceId,
-            DocumentVersion newVersion
+            CreateDocumentVersionRequest request
     ) {
+        DocumentVersion newVersion = DocumentMapper.toEntity(request);
+
         DocumentReference parentReference = referenceRepository.findById(documentReferenceId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Document reference not found: id=" + documentReferenceId
@@ -98,6 +105,7 @@ public class DocumentService {
     // Find all active references
     // --------------------------------------------------
 
+    @Transactional(readOnly = true)
     public List<DocumentReference> getAllActiveDocumentReferences() {
         return referenceRepository.findByActiveTrue();
     }
@@ -107,6 +115,7 @@ public class DocumentService {
     // find all versions (current + outdated) for a doc reference
     // --------------------------------------------------
 
+    @Transactional(readOnly = true)
     public List<DocumentVersion> getAllVersions(Long documentReferenceId) {
         DocumentReference reference = referenceRepository.findById(documentReferenceId)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -122,6 +131,7 @@ public class DocumentService {
     // Find current version for a doc reference
     // --------------------------------------------------
 
+    @Transactional(readOnly = true)
     public DocumentVersion getCurrentVersion(Long documentReferenceId) {
         DocumentReference reference = referenceRepository.findById(documentReferenceId)
                 .orElseThrow(() -> new EntityNotFoundException(

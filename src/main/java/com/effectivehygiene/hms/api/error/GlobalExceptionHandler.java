@@ -2,6 +2,7 @@ package com.effectivehygiene.hms.api.error;
 
 
 import com.effectivehygiene.hms.domain.exception.DomainException;
+import com.effectivehygiene.hms.domain.exception.InactiveEntityException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,26 @@ public class GlobalExceptionHandler {
         return fieldError.getField() + ": " + fieldError.getDefaultMessage();
     }
 
-    // 2) Domain/business exceptions
+    // 2) Inactive entity errors (attempting to modify inactive records)
+    @ExceptionHandler(InactiveEntityException.class)
+    public ResponseEntity<ApiErrorResponse> handleInactiveEntity(InactiveEntityException ex,
+                                                                 HttpServletRequest request) {
+
+        ApiErrorResponse body = new ApiErrorResponse(
+                Instant.now(),
+                ex.getStatus().value(),
+                ex.getCode(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        // Log at warn level (expected business constraint)
+        log.warn("Inactive entity error: path={}, message={}", request.getRequestURI(), ex.getMessage());
+
+        return ResponseEntity.status(ex.getStatus()).body(body);
+    }
+
+    // 3) Domain/business exceptions (catch-all for other DomainException subclasses)
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ApiErrorResponse> handleDomain(DomainException ex,
                                                          HttpServletRequest request) {
@@ -69,7 +89,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus()).body(body);
     }
 
-    // 3) Authorization errors that happen in controller layer
+    // 4) Authorization errors that happen in controller layer
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex,
                                                                HttpServletRequest request) {
@@ -86,10 +106,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(403).body(body);
     }
 
-    // 4) Catch-all unexpected errors (safe 500)
+    // 5) Catch-all unexpected errors (safe 500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception ex,
-                                                             HttpServletRequest request) {
+                                                              HttpServletRequest request) {
 
         ApiErrorResponse body = new ApiErrorResponse(
                 Instant.now(),

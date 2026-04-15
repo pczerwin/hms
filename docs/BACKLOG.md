@@ -1,8 +1,10 @@
 # HMS MVP Ticket-Ready Backlog
 
-**Goal:** Reach MVP completion with Training + Audit + Derived Matrix + minimal UI wiring.
+**Goal:** Reach exam readiness with Training Instance + Derived Compliance Matrix (Audit logging deferred to Phase 2).
 
-**Key Principle:** Each ticket preserves compliance invariants (soft-delete, immutability, traceability, audit), tests are integration-style matching `Phase2ErrorHandlingAndLoggingIT` patterns, and `/api/**` endpoints follow established error contract.
+**Priority Scope:** HMS-1 to HMS-8 + HMS-12 (Training Core + Compliance Matrix). HMS-9-11 (Audit) deferred post-exam.
+
+**Key Principle:** Each active ticket preserves compliance invariants (soft-delete, immutability, traceability), tests are integration-style matching `Phase2ErrorHandlingAndLoggingIT` patterns, and `/api/**` endpoints follow established error contract.
 
 ---
 
@@ -386,21 +388,22 @@
 ## Epic 5: Minimal UI Integration
 
 ### HMS-12: Wiring and smoke test
-**Goal:** Ensure all endpoints are accessible via UI or simple HTTP client; no major regressions.
+**Goal:** Ensure all active endpoints are accessible via UI or simple HTTP client; no major regressions.
 
 **In Scope:**
-- Wire training, compliance, audit endpoints into simple HTML templates (or REST client smoke test).
+- Wire training, compliance endpoints into simple HTML templates (or REST client smoke test).
 - Verify authentication/session flow works end-to-end.
 - Test error scenarios return expected JSON.
 - Basic smoke test: create employee → create document version → create training → check compliance matrix.
 
 **Out of Scope:**
+- Audit endpoint wiring (deferred to Phase 2).
 - Rich UI/UX (post-MVP; keep minimal).
 - Task scheduling or KPI dashboard (post-MVP).
 - File uploads (post-MVP).
 
 **Acceptance Criteria:**
-- All training/compliance/audit endpoints are reachable and return correct data.
+- All training/compliance endpoints are reachable and return correct data.
 - No regressions in existing employee/document endpoints.
 - Full smoke test scenario completes without errors.
 - Error handling works consistently (401, 4xx, 5xx scenarios).
@@ -409,7 +412,7 @@
 - Integration/smoke test covering full workflow.
 - Verify no breaking changes to existing APIs.
 
-**Dependencies:** All previous tickets.
+**Dependencies:** HMS-1-8 (all active tickets).
 
 **Estimate:** M (2–3 hours).
 
@@ -451,12 +454,19 @@
 
 ---
 
-## Post-MVP Roadmap (Not In This Backlog)
+## Phase 2 Roadmap (After Exam)
 
+### Phase 2a: Audit Logging (Deferred from MVP)
+- HMS-9: Create AuditLog domain model
+- HMS-10: Implement AuditService (integrate into EmployeeService, DocumentService, TrainingService)
+- HMS-11: Create AuditController with GET endpoints
+
+### Phase 2b: Post-MVP Features
 - Task scheduling and automation.
 - KPI dashboard with periodic recalculation.
 - File uploads and PDF export.
 - Electronic signatures.
 - Multi-site and role-based access control.
 - Advanced reporting and data export.
+- User module (replace in-memory auth with database-backed users).
 

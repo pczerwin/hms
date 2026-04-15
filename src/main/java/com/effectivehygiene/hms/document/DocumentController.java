@@ -32,7 +32,7 @@ public class DocumentController {
     public ResponseEntity<DocumentReferenceResponse> createDocumentReference(
             @Valid @RequestBody CreateDocumentReferenceRequest request
     ) {
-        DocumentReference newReference = documentService.createReference(DocumentMapper.toEntity(request));
+        DocumentReference newReference = documentService.createReference(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(DocumentMapper.toResponse(newReference));
     }
 
@@ -60,7 +60,7 @@ public class DocumentController {
             @Valid @RequestBody CreateDocumentVersionRequest request
     ) {
         DocumentVersion createdVersion =
-                documentService.createVersion(referenceId, DocumentMapper.toEntity(request));
+                documentService.createVersion(referenceId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(DocumentMapper.toResponse(createdVersion));
     }

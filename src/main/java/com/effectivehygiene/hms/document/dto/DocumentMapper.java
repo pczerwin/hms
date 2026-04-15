@@ -20,7 +20,7 @@ public final class DocumentMapper {
 
     public static DocumentVersion toEntity(CreateDocumentVersionRequest request) {
         DocumentVersion version = new DocumentVersion();
-        version.setDocName(normalizeRequiredText(request.getDocName()));
+        version.setDocumentName(normalizeRequiredText(request.getDocumentName()));
         version.setVersion(normalizeRequiredText(request.getVersion()));
         version.setVersionIssueDate(request.getVersionIssueDate());
         version.setCurrent(Boolean.TRUE.equals(request.getIsCurrent()));
@@ -43,7 +43,7 @@ public final class DocumentMapper {
         return new DocumentVersionResponse(
                 version.getId(),
                 version.getDocumentReference() != null ? version.getDocumentReference().getId() : null,
-                version.getDocName(),
+                version.getDocumentName(),
                 version.getVersion(),
                 version.getVersionIssueDate(),
                 version.isCurrent(),
