@@ -99,13 +99,17 @@ Run focused integration tests:
 - **Spring Boot:** MVC, Security (session/form), JPA, Validation
 - **Flyway:** Database migrations (baseline in progress)
 - **MySQL Connector:** 8.2.0+
-- **Jackson:** JSON serialization with UTC timezone enforcement
+- **Jackson:** Spring Boot 4 includes both Jackson 2 (`com.fasterxml.jackson.*`) and Jackson 3 (`tools.jackson.*`)
+
+### Boot 4 Jackson Note (Important)
+- For security error handlers (`RestAuthenticationEntryPoint`, `RestAccessDeniedHandler`), use **Jackson 3** imports: `tools.jackson.*`.
+- Security handlers are intentionally **self-contained** (internal `JsonMapper`) to avoid `@WebMvcTest` mapper-bean ordering issues.
+- Do not auto-convert these handlers to `com.fasterxml.jackson.*` without running the focused integration tests.
 
 ## Recent Fixes (April 15, 2026)
 
 - ✅ Fixed MySQL Connector CVE-2023-22102 (upgraded to 8.2.0)
-- ✅ Corrected Jackson imports in security handlers
+- ✅ Standardized security error serialization on Boot 4/Jackson 3 conventions (`tools.jackson.*`) and removed mapper-bean coupling in security handlers
 - ✅ Added proper exception handler for `InactiveEntityException` (409 CONFLICT)
 
-See [AGENTS.md](AGENTS.md) for full architecture details.
-
+See [AGENTS.md](AGENTS.md) for full architecture details and guardrails.

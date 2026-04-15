@@ -48,6 +48,15 @@
 - Run focused integration tests: `./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT" test`
 - Manual timezone DB verification is in `docs/minor/tz_smoke.sql` (not an automated test — requires live MySQL).
 
+## Jackson Conventions (Boot 4 Guardrail)
+- Spring Boot 4.0.5 brings **both** Jackson stacks on classpath (`com.fasterxml.jackson.*` 2.x and `tools.jackson.*` 3.x).
+- For this repo's security JSON handlers (`RestAuthenticationEntryPoint`, `RestAccessDeniedHandler`), use **Jackson 3** imports: `tools.jackson.*`.
+- Keep security handlers **self-contained** (internal `JsonMapper`) instead of constructor-injecting a mapper bean; this avoids `@WebMvcTest` slice startup failures caused by mapper-bean resolution/order.
+- Do **not** "auto-correct" `tools.jackson.*` to `com.fasterxml.jackson.*` in security code without a full test pass.
+- If touching security JSON serialization, run:
+  - `./mvnw test`
+  - `./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT" test`
+
 ## Coding Patterns for This Repo
 - Keep REST paths under `/api/...` for API endpoints to retain JSON security error behavior.
 - When adding business errors, prefer typed `DomainException` subclasses so responses carry stable `ErrorCode` values.
@@ -57,6 +66,5 @@
 
 ## Recent Fixes (April 15, 2026)
 - **Issue 1:** Upgraded `mysql-connector-j` from 8.0.33 → 8.2.0 to resolve CVE-2023-22102 vulnerability.
-- **Issue 2:** Corrected Jackson imports in `SecurityConfig`, `RestAuthenticationEntryPoint`, `RestAccessDeniedHandler` from `tools.jackson.*` → `com.fasterxml.jackson.*` (standard library).
+- **Issue 2:** Standardized security error serialization on Boot 4/Jackson 3 conventions (`tools.jackson.*`) and removed mapper-bean coupling in security handlers to avoid `@WebMvcTest` context failures.
 - **Issue 8:** Added dedicated `@ExceptionHandler` for `InactiveEntityException` in `GlobalExceptionHandler` to return 409 CONFLICT with `ErrorCode.INACTIVE_ENTITY` instead of 500 INTERNAL_ERROR.
-

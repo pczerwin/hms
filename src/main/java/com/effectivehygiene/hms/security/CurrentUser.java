@@ -8,8 +8,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 
 public final class CurrentUser {
+
+    // Utility class: prevent instantiation.
     private CurrentUser() {}
 
+    // Resolves the current username for logs/audit, falling back to SYSTEM when unavailable.
     public static String usernameOrSystem() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
