@@ -6,6 +6,7 @@ import com.effectivehygiene.hms.training.TrainerType;
 import com.effectivehygiene.hms.training.TrainingController;
 import com.effectivehygiene.hms.training.TrainingInstance;
 import com.effectivehygiene.hms.training.TrainingService;
+import com.effectivehygiene.hms.training.dto.TrainingInstanceSingleResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -13,11 +14,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -39,17 +40,20 @@ class ApiTrainingInstanceCreateIT extends ApiContractIntegrationTestBase {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void createTrainingInstance_returns201AndResponseBody() throws Exception {
-        TrainingInstance created = new TrainingInstance();
-        created.setTrainerName("Alex Foster");
-        created.setTrainerType(TrainerType.EMPLOYEE);
-        created.setTrainingStartDate(LocalDate.parse("2026-04-10"));
-        created.setTrainingEndDate(LocalDate.parse("2026-04-10"));
-        created.setTrainingDuration("2h");
-        created.setTrainingExpiryDate(LocalDate.parse("2027-04-10"));
-        created.setComments("Initial training cycle");
-        created.setTrainerSignature("TRN-SIG-500");
-        ReflectionTestUtils.setField(created, "id", 500L);
-        ReflectionTestUtils.setField(created, "createdAt", Instant.parse("2026-04-10T09:00:00Z"));
+        TrainingInstanceSingleResponse created = new TrainingInstanceSingleResponse(
+                500L,
+                "Alex Foster",
+                TrainerType.EMPLOYEE,
+                LocalDate.parse("2026-04-10"),
+                LocalDate.parse("2026-04-10"),
+                "2h",
+                LocalDate.parse("2027-04-10"),
+                "Initial training cycle",
+                "TRN-SIG-500",
+                Instant.parse("2026-04-10T09:00:00Z"),
+                List.of(1L, 2L),
+                List.of(11L, 12L)
+        );
 
         when(trainingService.createTrainingInstance(any())).thenReturn(created);
 

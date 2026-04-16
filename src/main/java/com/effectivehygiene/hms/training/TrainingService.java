@@ -10,7 +10,12 @@ import com.effectivehygiene.hms.domain.exception.InvalidTrainingException;
 import com.effectivehygiene.hms.employee.Employee;
 import com.effectivehygiene.hms.employee.EmployeeRepository;
 import com.effectivehygiene.hms.training.dto.CreateTrainingInstanceRequest;
+import com.effectivehygiene.hms.training.dto.TrainingInstanceMultiResponse;
+import com.effectivehygiene.hms.training.dto.TrainingInstanceSingleResponse;
 import com.effectivehygiene.hms.training.dto.TrainingMapper;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,86 +46,47 @@ public class TrainingService {
         this.employeeRepository = employeeRepository;
         this.documentVersionRepository = documentVersionRepository;
     }
-
-
-
-        // Create instance
-        public TrainingInstance createTrainingInstance(
-                CreateTrainingInstanceRequest request
-        ) {
-        TrainingInstance newInstance = TrainingMapper.toEntity(request);
-
-            // Remove duplicates - employees
-            Set<Long> employeeIds = new LinkedHashSet<>(request.getEmployeeIds());
-            if (employeeIds.size() != request.getEmployeeIds().size()) {
-                throw new InvalidTrainingException("Duplicate employee IDs are not allowed in one training instance");
-            }
-
-            // Remove duplicates - documents
-            Set<Long> documentVersionIds = new LinkedHashSet<>(request.getDocumentVersionIds());
-            if (documentVersionIds.size() != request.getDocumentVersionIds().size()) {
-                throw new InvalidTrainingException("Duplicate document version IDs are not allowed in one training instance");
-            }
-
-            // All employees must be active at the time of training
-            List<Employee> employees = employeeRepository.findAllById(employeeIds);
-            if (employees.size() != employeeIds.size()) {
-                throw new EntityNotFoundException("One or more employees were not found");
-            }
-
-            for (Employee employee : employees) {
-                if (!employee.isActive()) {
-                    throw new InactiveEntityException(
-                        "Cannot create training instance: employee ID " + employee.getId() + " is inactive"
-                    );
-                }
-            }
-
-            // All document references must be active
-            List<DocumentVersion> documentVersions = documentVersionRepository.findAllById(documentVersionIds);
-            if (documentVersions.size() != documentVersionIds.size()) {
-                throw new EntityNotFoundException("One or more document versions were not found");
-            }
-
-            for (DocumentVersion documentVersion : documentVersions) {
-                DocumentReference reference = documentVersion.getDocumentReference();
-                if (!reference.isActive()) {
-                    throw new InactiveEntityException(
-                            "Cannot create training instance: reference ID " + reference.getId() + " is inactive"
-                    );
-                }
-            }
-
-            // All document versions must be current
-            for (DocumentVersion documentVersion : documentVersions) {
-                if (!documentVersion.isCurrent()) {
-                    throw new InvalidTrainingException(
-                            "Cannot create training instance: documentVersion ID " + documentVersion.getId() + " is not current"
-                    );
-                }
-            }
-            // Training start date < training end date
-            if (request.getTrainingEndDate().isBefore(request.getTrainingStartDate())) {
-                throw new InvalidTrainingException(
-                        "Training end date must be after training start date"
-                );
-            }
-            // Training end date < training expiry date
-            if (request.getTrainingExpiryDate().isBefore(request.getTrainingEndDate())) {
-                throw new InvalidTrainingException(
-                        "Training expiry date must be on or after training end date"
-                );
-            }
-
-            TrainingInstance savedInstance = trainingInstanceRepository.save(newInstance);
-            saveTrainingTrainees(savedInstance, employees);
-            saveTrainingDocuments(savedInstance, documentVersions);
-
-        return savedInstance;
+    // Create instance
+    public TrainingInstanceSingleResponse createTrainingInstance(CreateTrainingInstanceRequest request) {
+        if (request == null) {
+            throw new InvalidTrainingException("Training request is required");
         }
 
+        TrainingInstance newInstance = TrainingMapper.toEntity(request);
+        validateRequiredFields(newInstance);
+        validateDateSequence(newInstance);
+
+        Set<Long> employeeIds = normalizeAndValidateIds(
+                request.getEmployeeIds(),
+                "employee IDs are required",
+                "At least one employee must attend the training",
+                "Employee IDs must not contain null values",
+                "Duplicate employee IDs are not allowed in one training instance"
+        );
+
+        Set<Long> documentVersionIds = normalizeAndValidateIds(
+                request.getDocumentVersionIds(),
+                "Document version IDs are required",
+                "At least one document version must be covered in the training",
+                "Document version IDs must not contain null values",
+                "Duplicate document version IDs are not allowed in one training instance"
+        );
+
+        List<Employee> employees = loadAndValidateEmployees(employeeIds);
+        List<DocumentVersion> documentVersions = loadAndValidateDocumentVersions(documentVersionIds);
+
+        TrainingInstance savedInstance = trainingInstanceRepository.save(newInstance);
+        saveTrainingTrainees(savedInstance, employees);
+        saveTrainingDocuments(savedInstance, documentVersions);
+
+        List<Long> savedEmployeeIds = employees.stream().map(Employee::getId).toList();
+        List<Long> savedDocumentVersionIds = documentVersions.stream().map(DocumentVersion::getId).toList();
+
+        return TrainingMapper.toSingleResponse(savedInstance, savedEmployeeIds, savedDocumentVersionIds);
+    }
+
     private void saveTrainingTrainees(TrainingInstance trainingInstance, List<Employee> employees) {
-        List<TrainingTrainee> trainees = new ArrayList<>();
+        List<TrainingTrainee> trainees = new ArrayList<>(employees.size());
         for (Employee employee : employees) {
             TrainingTrainee trainee = new TrainingTrainee();
             trainee.setTrainingInstance(trainingInstance);
@@ -131,7 +97,7 @@ public class TrainingService {
     }
 
     private void saveTrainingDocuments(TrainingInstance trainingInstance, List<DocumentVersion> documentVersions) {
-        List<TrainingDocument> trainingDocuments = new ArrayList<>();
+        List<TrainingDocument> trainingDocuments = new ArrayList<>(documentVersions.size());
         for (DocumentVersion documentVersion : documentVersions) {
             TrainingDocument trainingDocument = new TrainingDocument();
             trainingDocument.setTrainingInstance(trainingInstance);
@@ -141,15 +107,149 @@ public class TrainingService {
         trainingDocumentRepository.saveAll(trainingDocuments);
     }
 
+    private Set<Long> normalizeAndValidateIds(
+            List<Long> rawIds,
+            String missingListMessage,
+            String emptyListMessage,
+            String nullElementMessage,
+            String duplicateMessage
+    ) {
+        if (rawIds == null) {
+            throw new InvalidTrainingException(missingListMessage);
+        }
+        if (rawIds.isEmpty()) {
+            throw new InvalidTrainingException(emptyListMessage);
+        }
+        if (rawIds.contains(null)) {
+            throw new InvalidTrainingException(nullElementMessage);
+        }
+
+        Set<Long> normalizedIds = new LinkedHashSet<>(rawIds);
+        if (normalizedIds.size() != rawIds.size()) {
+            throw new InvalidTrainingException(duplicateMessage);
+        }
+
+        return normalizedIds;
+    }
+
+    private List<Employee> loadAndValidateEmployees(Set<Long> employeeIds) {
+        List<Employee> employees = employeeRepository.findAllById(employeeIds);
+        if (employees.size() != employeeIds.size()) {
+            throw new EntityNotFoundException("One or more employees were not found");
+        }
+
+        for (Employee employee : employees) {
+            if (!employee.isActive()) {
+                throw new InactiveEntityException(
+                        "Cannot create training instance: employee ID " + employee.getId() + " is inactive"
+                );
+            }
+        }
+
+        return employees;
+    }
+
+    private List<DocumentVersion> loadAndValidateDocumentVersions(Set<Long> documentVersionIds) {
+        List<DocumentVersion> documentVersions = documentVersionRepository.findAllByIdInWithReference(documentVersionIds);
+        if (documentVersions.size() != documentVersionIds.size()) {
+            throw new EntityNotFoundException("One or more document versions were not found");
+        }
+
+        for (DocumentVersion documentVersion : documentVersions) {
+            DocumentReference reference = documentVersion.getDocumentReference();
+            if (!reference.isActive()) {
+                throw new InactiveEntityException(
+                        "Cannot create training instance: reference ID " + reference.getId() + " is inactive"
+                );
+            }
+            if (!documentVersion.isCurrent()) {
+                throw new InvalidTrainingException(
+                        "Cannot create training instance: documentVersion ID " + documentVersion.getId() + " is not current"
+                );
+            }
+        }
+
+        return documentVersions;
+    }
+
+    private void validateRequiredFields(TrainingInstance trainingInstance) {
+        if (trainingInstance.getTrainerName() == null
+                || trainingInstance.getTrainerType() == null
+                || trainingInstance.getTrainingStartDate() == null
+                || trainingInstance.getTrainingEndDate() == null
+                || trainingInstance.getTrainingDuration() == null
+                || trainingInstance.getTrainingExpiryDate() == null
+                || trainingInstance.getTrainerSignature() == null) {
+            throw new InvalidTrainingException("Training request is missing required fields");
+        }
+    }
+
+    private void validateDateSequence(TrainingInstance trainingInstance) {
+        // Business rule: start <= end <= expiry
+        if (trainingInstance.getTrainingEndDate().isBefore(trainingInstance.getTrainingStartDate())) {
+            throw new InvalidTrainingException("Training end date must be on or after training start date");
+        }
+        if (trainingInstance.getTrainingExpiryDate().isBefore(trainingInstance.getTrainingEndDate())) {
+            throw new InvalidTrainingException("Training expiry date must be on or after training end date");
+        }
+    }
 
 
 
 
 
-    // Find all
 
+    // Find all training instances (no pagination for current MVP stage).
+    @Transactional(readOnly = true)
+    public List<TrainingInstanceMultiResponse> findAll() {
+        List<TrainingInstance> instances = trainingInstanceRepository.findAll();
+        if (instances.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> instanceIds = instances.stream().map(TrainingInstance::getId).toList();
+
+        Map<Long, List<Long>> employeesByInstance = trainingTraineeRepository
+                .findByTrainingInstanceIdIn(instanceIds).stream()
+                .collect(Collectors.groupingBy(
+                        tt -> tt.getTrainingInstance().getId(),
+                        Collectors.mapping(tt -> tt.getEmployee().getId(), Collectors.toList())
+                ));
+
+        Map<Long, List<Long>> documentsByInstance = trainingDocumentRepository
+                .findByTrainingInstanceIdIn(instanceIds).stream()
+                .collect(Collectors.groupingBy(
+                        td -> td.getTrainingInstance().getId(),
+                        Collectors.mapping(td -> td.getDocumentVersion().getId(), Collectors.toList())
+                ));
+
+        return instances.stream()
+                .map(instance -> TrainingMapper.toMultiResponse(
+                        instance,
+                        employeesByInstance.getOrDefault(instance.getId(), List.of()),
+                        documentsByInstance.getOrDefault(instance.getId(), List.of())
+                ))
+                .toList();
+    }
 
     // Find by id
+    @Transactional(readOnly = true)
+    public TrainingInstanceSingleResponse findByTrainingInstanceId(Long id) {
+        TrainingInstance trainingInstance = trainingInstanceRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Training instance not found: id=" + id));
+
+        List<Long> employeeIds = trainingTraineeRepository
+                .findByTrainingInstanceId(id).stream()
+                .map(tt -> tt.getEmployee().getId())
+                .toList();
+
+        List<Long> documentVersionIds = trainingDocumentRepository
+                .findByTrainingInstanceId(id).stream()
+                .map(td -> td.getDocumentVersion().getId())
+                .toList();
+
+        return TrainingMapper.toSingleResponse(trainingInstance, employeeIds, documentVersionIds);
+    }
 
 
 

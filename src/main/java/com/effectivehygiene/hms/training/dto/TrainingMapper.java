@@ -2,6 +2,8 @@ package com.effectivehygiene.hms.training.dto;
 
 import com.effectivehygiene.hms.training.TrainingInstance;
 
+import java.util.List;
+
 public final class TrainingMapper {
 
     private TrainingMapper() {
@@ -20,8 +22,12 @@ public final class TrainingMapper {
         return returnInstance;
     }
 
-    public static TrainingInstanceResponse toResponse(TrainingInstance trainingInstance) {
-        return new TrainingInstanceResponse(
+    public static TrainingInstanceSingleResponse toSingleResponse(
+            TrainingInstance trainingInstance,
+            List<Long> employeeIds,
+            List<Long> documentVersionIds
+    ) {
+        return new TrainingInstanceSingleResponse(
                 trainingInstance.getId(),
                 trainingInstance.getTrainerName(),
                 trainingInstance.getTrainerType(),
@@ -31,21 +37,39 @@ public final class TrainingMapper {
                 trainingInstance.getTrainingExpiryDate(),
                 trainingInstance.getComments(),
                 trainingInstance.getTrainerSignature(),
-                trainingInstance.getCreatedAt()
+                trainingInstance.getCreatedAt(),
+                employeeIds,
+                documentVersionIds
         );
     }
 
+    public static TrainingInstanceMultiResponse toMultiResponse(
+            TrainingInstance trainingInstance,
+            List<Long> employeeIds,
+            List<Long> documentVersionIds
+    ) {
+        return new TrainingInstanceMultiResponse(
+                trainingInstance.getId(),
+                trainingInstance.getTrainerName(),
+                trainingInstance.getTrainerType(),
+                trainingInstance.getTrainingStartDate(),
+                trainingInstance.getTrainingEndDate(),
+                trainingInstance.getTrainingExpiryDate(),
+                trainingInstance.getCreatedAt(),
+                employeeIds,
+                documentVersionIds
+        );
+    }
 
     private static String normalizeRequiredText(String value) {
         if (value == null) {return null;}
-        return value.trim();
-    }
-
-    private static String normalizeOptionalText(String value) {
-        if (value == null) {return null;}
-
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    private static String normalizeOptionalText(String value) {
+        if (value == null) {return null;}
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
 }
