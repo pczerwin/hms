@@ -6,14 +6,16 @@
 
 **Key Principle:** Each active ticket preserves compliance invariants (soft-delete, immutability, traceability), tests are integration-style matching `Phase2ErrorHandlingAndLoggingIT` patterns, and `/api/**` endpoints follow established error contract.
 
-## Progress Update (2026-04-15)
+## Progress Update (2026-04-16)
 
-- HMS-1 complete: domain exception hardening is in place (`InactiveEntityException` now mapped to `409/INACTIVE_ENTITY`).
+- HMS-1 complete: domain exception hardening in place (`InactiveEntityException` mapped to `409/INACTIVE_ENTITY`).
 - HMS-2 complete: `TrainingInstance`, `TrainingTrainee`, `TrainingDocument` entities and repositories implemented.
-- HMS-3 in progress: training create service implemented with transactional save across `training_instance`, `training_trainee`, `training_document`; read methods pending.
-- HMS-4 in progress: controller create endpoint implemented as `POST /api/training/instances` with request/response DTOs.
-- Training create integration tests added: `ApiTrainingInstanceCreateIT` (201 success + 409 inactive employee contract).
-- Schema/seed support updated: collation guardrails + rerun-safe temp table cleanup + multi-document training seed in `data_initialisation_v2.sql`.
+- HMS-3 complete: training create service with transactional save across 3 tables; read methods `findAll()` and `findByTrainingInstanceId()` implemented with bulk N+1-safe queries.
+- HMS-4 complete: `POST /api/training/instances` (create, returns `TrainingInstanceSingleResponse`).
+- HMS-5 complete: `findAll()` and `findByTrainingInstanceId()` service read methods implemented.
+- HMS-6 complete: `GET /api/training/instances` (list) and `GET /api/training/instances/{id}` (detail) endpoints added to `TrainingController`.
+- Auth module complete: DB-backed login via `UserDetailsServiceImpl` + `UserRepository`; explicit `HttpSessionSecurityContextRepository` for session persistence; `RestLoginSuccessHandler` (JSON 200) and `RestLoginFailureHandler` (JSON 401) added — no more HTML redirects on login.
+- Integration test coverage: `ApiTrainingInstanceCreateIT` (201 success + 409 inactive employee).
 
 ---
 
@@ -88,7 +90,7 @@
 ---
 
 ### HMS-3: Implement TrainingService with business rules (create-only)
-**Status:** In Progress
+**Status:** Complete
 
 **Goal:** Enforce training creation rules; no edit/delete flows.
 
@@ -130,7 +132,7 @@
 ---
 
 ### HMS-4: Create TrainingController with POST endpoint
-**Status:** In Progress
+**Status:** Complete
 
 **Goal:** Expose immutable training creation API.
 
@@ -169,7 +171,7 @@
 ---
 
 ### HMS-5: Add TrainingService read methods (list/detail, no edit)
-**Goal:** Support retrieval of training records for compliance review.
+**Status:** Complete
 
 **In Scope:**
 - `findById(id)` → throws `EntityNotFoundException` if not found.
@@ -200,7 +202,7 @@
 ---
 
 ### HMS-6: Create TrainingController GET endpoints
-**Goal:** Expose read-only training APIs.
+**Status:** Complete
 
 **In Scope:**
 - `GET /api/trainings` → list all (paginated or all for MVP).
@@ -236,72 +238,60 @@
 ## Epic 3: Derived Training Compliance Matrix
 
 ### HMS-7: Implement TrainingComplianceService (derived status calculation)
+**Status:** ✅ Complete
+
 **Goal:** Calculate training status per employee × document reference dynamically (not stored).
 
-**In Scope:**
-- Enum `TrainingStatus` (COMPLETE, OUTDATED_DOCUMENT, OUTDATED_TRAINING, INCOMPLETE).
+**Implemented:**
+- Enum `TrainingStatus` (COMPLETE, OUTDATED_DOCUMENT, EXPIRED_TRAINING, INCOMPLETE).
 - Method `calculateStatus(employeeId, documentRefId)` → returns `TrainingStatus`.
+- Method `buildMatrix(employeeIdFilter, documentRefIdFilter)` → full compliance matrix with optional filtering.
 - Logic:
-  - COMPLETE: employee has valid (non-expired) training on current document version.
-  - OUTDATED_DOCUMENT: employee trained, but newer document version exists.
-  - OUTDATED_TRAINING: employee trained on current version, but training expired.
+  - COMPLETE: most recent training on current document version AND not expired.
+  - OUTDATED_DOCUMENT: most recent training on older version AND not expired.
+  - EXPIRED_TRAINING: most recent training EXISTS AND expired (any version).
   - INCOMPLETE: no training record exists.
+- Bulk-fetches current document versions (avoids N+1).
+- Filter validation: returns 404 for invalid/inactive employee or docRef.
 - Uses `TrainingInstanceRepository`, `DocumentVersionRepository`, `EmployeeRepository` for queries.
 
-**Out of Scope:**
-- Persistence of status (derived only).
-- Aggregated views (next ticket).
-- API endpoint (next ticket).
+**Acceptance Criteria Met:**
+- ✅ Status calculation correct for all four cases.
+- ✅ No stored status fields; always derives from current data.
+- ✅ Handles edge cases (employee inactive, document inactive, no training, no current version).
+- ✅ Deterministic and repeatable.
+- ✅ 17 unit tests covering all transitions, expiry boundary, filter validation.
 
-**Acceptance Criteria:**
-- Status calculation is correct for all four cases.
-- No stored status fields; always derives from current data.
-- Handles edge cases (employee inactive, document inactive, no training).
-- Deterministic and repeatable (same inputs → same output).
-
-**Tests:**
-- Unit/integration tests for each status transition.
-- Test scenario: training expires (clock passes expiry) → status changes to OUTDATED_TRAINING.
-- Test scenario: new document version becomes current → status changes to OUTDATED_DOCUMENT.
-- Test scenario: no training exists → status is INCOMPLETE.
-
-**Dependencies:** HMS-3 (training creation), HMS-2 (models).
-
-**Estimate:** M (2–3 hours).
-
-**Files Affected:** `training/TrainingComplianceService.java`, `training/TrainingStatus.java`.
+**Files Affected:** `training/TrainingComplianceService.java`, `training/TrainingStatus.java`, `training/TrainingInstanceRepository.java`.
 
 ---
 
 ### HMS-8: Create ComplianceMatrixController with GET endpoint
-**Goal:** Expose employee training compliance matrix.
+**Status:** ✅ Complete
 
-**In Scope:**
-- `GET /api/compliance/matrix` → returns matrix of (employee, document_ref, status).
+**Goal:** Expose employee training compliance matrix with current version details.
+
+**Implemented:**
+- Controller `ComplianceMatrixController` with `GET /api/compliance/matrix` endpoint.
 - Optional filters: `?employeeId={id}` or `?documentRefId={id}`.
-- Response format: `{ employees: [...], documents: [...], matrix: { employeeId: { docRefId: status } } }`.
-- Secured (requires authentication).
+- Response includes:
+  - `employees[]` — active employees with basic info.
+  - `documents[]` — active document references with **current version details** (version, name, issue date).
+  - `matrix[empId][docRefId]` — status strings (COMPLETE, OUTDATED_DOCUMENT, EXPIRED_TRAINING, INCOMPLETE).
+- Response DTOs: `ComplianceMatrixResponse`, `ComplianceMatrixResponse.EmployeeResponse`, `ComplianceMatrixResponse.DocumentReferenceResponse`.
+- Filter validation: 404 if employee/docRef ID is invalid or inactive.
+- Service injects `DocumentVersionRepository` for bulk current-version fetching (no N+1).
 
-**Out of Scope:**
-- Real-time KPI dashboard (post-MVP).
-- Drill-down details (add later).
+**Acceptance Criteria Met:**
+- ✅ Endpoint returns 200 with correct matrix JSON.
+- ✅ All four status values appear correctly.
+- ✅ Filters narrow results correctly.
+- ✅ Current version details (version, name, issue date) included in response.
+- ✅ Version fields are null when no current version assigned.
+- ✅ Unauthenticated returns 401.
+- ✅ 10 integration tests covering all scenarios.
 
-**Acceptance Criteria:**
-- Endpoint returns `200` with correct matrix JSON.
-- All four status values appear correctly based on training + document state.
-- Filters narrow results correctly.
-- Unauthenticated returns `401`.
-
-**Tests:**
-- Integration test: matrix returns correct statuses for known setup.
-- Integration test: after training expires (or new doc version), matrix updates.
-- Integration test: filters work correctly.
-
-**Dependencies:** HMS-7 (service).
-
-**Estimate:** M (2–3 hours).
-
-**Files Affected:** `training/ComplianceMatrixController.java`, `training/dto/ComplianceMatrixResponse.java`.
+**Files Affected:** `training/ComplianceMatrixController.java`, `training/TrainingComplianceService.java` (enhanced with `buildMatrix()` method), `training/dto/ComplianceMatrix.java`, `training/dto/ComplianceMatrixResponse.java`.
 
 ---
 
@@ -440,14 +430,14 @@
 
 | Ticket | Title | Epic | Status | Estimate | Dependencies |
 |--------|-------|------|--------|----------|--------------|
-| HMS-1 | Migrate IllegalStateException to DomainException | 1 | Complete | S | None |
-| HMS-2 | Create Training domain models | 2 | Complete | S | Schema |
-| HMS-3 | Implement TrainingService (create-only) | 2 | In Progress | M | HMS-2, HMS-1 |
-| HMS-4 | Create TrainingController POST | 2 | In Progress | S | HMS-3, HMS-1 |
-| HMS-5 | Add TrainingService read methods | 2 | Planned | XS | HMS-2 |
-| HMS-6 | Create TrainingController GET | 2 | Planned | S | HMS-5 |
-| HMS-7 | Implement TrainingComplianceService | 3 | Planned | M | HMS-3, HMS-2 |
-| HMS-8 | Create ComplianceMatrixController | 3 | Planned | M | HMS-7 |
+| HMS-1 | Migrate IllegalStateException to DomainException | 1 | ✅ Complete | S | None |
+| HMS-2 | Create Training domain models | 2 | ✅ Complete | S | Schema |
+| HMS-3 | Implement TrainingService (create-only) | 2 | ✅ Complete | M | HMS-2, HMS-1 |
+| HMS-4 | Create TrainingController POST | 2 | ✅ Complete | S | HMS-3, HMS-1 |
+| HMS-5 | Add TrainingService read methods | 2 | ✅ Complete | XS | HMS-2 |
+| HMS-6 | Create TrainingController GET | 2 | ✅ Complete | S | HMS-5 |
+| HMS-7 | Implement TrainingComplianceService | 3 | ✅ Complete | M | HMS-3, HMS-2 |
+| HMS-8 | Create ComplianceMatrixController | 3 | ✅ Complete | M | HMS-7 |
 | HMS-9 | Create AuditLog model | 4 | Deferred | S | Schema |
 | HMS-10 | Implement AuditService | 4 | Deferred | M | HMS-9, integrate into services |
 | HMS-11 | Create AuditController | 4 | Deferred | S | HMS-10 |
@@ -484,5 +474,4 @@
 - Electronic signatures.
 - Multi-site and role-based access control.
 - Advanced reporting and data export.
-- User module (replace in-memory auth with database-backed users).
 

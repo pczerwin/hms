@@ -70,6 +70,14 @@ A compliance-oriented hygiene management platform built with **Spring Boot 4.0.5
 
 ### Training
 - `POST /api/training/instances` — Create immutable training instance (persists instance + trainees + documents atomically)
+- `GET /api/training/instances` — List all training instances (with trainee and document version IDs)
+- `GET /api/training/instances/{id}` — Get single training instance by ID
+
+### Compliance
+- `GET /api/compliance/matrix` — Training compliance matrix (all active employees × active documents)
+  - Optional filters: `?employeeId={id}` or `?documentRefId={id}`
+  - Response includes current document version details (version, name, issue date)
+  - Status values: `COMPLETE`, `OUTDATED_DOCUMENT`, `EXPIRED_TRAINING`, `INCOMPLETE`
 
 ## Error Responses
 
@@ -93,14 +101,15 @@ Run all tests:
 
 Run focused integration tests:
 ```bash
-./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT" test
+./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT,ApiTrainingInstanceCreateIT,ApiComplianceMatrixIT" test
 ```
 
 ## Documentation
 
 - **`AGENTS.md`** — Detailed architecture, domain rules, and coding patterns (for AI agents and developers)
+- **`docs/POSTMAN_SETUP.md`** — Guide for testing APIs with Postman (session-based auth)
 - **`docs/schema/schema_v1.sql`** — Database schema with all tables and constraints
-- **`docs/schema/data_initialisation_v2.sql`** — Sample/seed data including dev login user
+- **`docs/schema/data_initialisation_v2.sql`** — Sample/seed data including dev login user (**must be run before first login**)
 - **`src/test/java/com/effectivehygiene/hms/util/HashGeneratorTest.java`** — Utility test to generate BCrypt hashes for manual SQL seeding
 
 ## Dependencies
@@ -111,7 +120,7 @@ Run focused integration tests:
 - **Jackson:** Spring Boot 4 includes both Jackson 2 (`com.fasterxml.jackson.*`) and Jackson 3 (`tools.jackson.*`)
 
 ### Boot 4 Jackson Note (Important)
-- For security error handlers (`RestAuthenticationEntryPoint`, `RestAccessDeniedHandler`), use **Jackson 3** imports: `tools.jackson.*`.
+- For ALL security handlers (`RestAuthenticationEntryPoint`, `RestAccessDeniedHandler`, `RestLoginSuccessHandler`, `RestLoginFailureHandler`), use **Jackson 3** imports: `tools.jackson.databind.json.JsonMapper`.
 - Security handlers are intentionally **self-contained** (internal `JsonMapper`) to avoid `@WebMvcTest` mapper-bean ordering issues.
 - Do not auto-convert these handlers to `com.fasterxml.jackson.*` without running the focused integration tests.
 
@@ -121,5 +130,11 @@ Run focused integration tests:
 - ✅ Standardized security error serialization on Boot 4/Jackson 3 conventions (`tools.jackson.*`) and removed mapper-bean coupling in security handlers
 - ✅ Added proper exception handler for `InactiveEntityException` (409 CONFLICT)
 - ✅ Switched authentication from in-memory credentials to DB-backed users (`UserRepository` + `UserDetailsServiceImpl`)
+- ✅ Disabled Spring Boot default in-memory user (`spring.security.user.name: disabled`) to ensure DB-backed auth is used
+- ✅ Fixed session persistence by explicitly configuring `HttpSessionSecurityContextRepository` in `SecurityConfig`
+- ✅ Added `RestLoginSuccessHandler` (JSON 200) and `RestLoginFailureHandler` (JSON 401) to replace HTML redirect responses on login
+- ✅ Added training read endpoints: `GET /api/training/instances` and `GET /api/training/instances/{id}`
+- ✅ Implemented compliance matrix calculation service with 4-state status enum (COMPLETE, OUTDATED_DOCUMENT, EXPIRED_TRAINING, INCOMPLETE)
+- ✅ Added `GET /api/compliance/matrix` endpoint with optional employee/document reference filters and current version details in response
 
 See [AGENTS.md](AGENTS.md) for full architecture details and guardrails.

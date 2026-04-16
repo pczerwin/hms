@@ -21,6 +21,8 @@
 - Business rules live in services (`employee/EmployeeService.java`, `document/DocumentService.java`, `training/TrainingService.java`) and are marked `@Transactional`.
 - Persistence uses Spring Data repositories per aggregate (`EmployeeRepository`, `DocumentReferenceRepository`, `DocumentVersionRepository`, `UserRepository`).
 - Authentication uses `security/UserDetailsServiceImpl.java` to load active users from DB (`users` table) instead of in-memory credentials.
+- Security handlers (`RestAuthenticationEntryPoint`, `RestAccessDeniedHandler`, `RestLoginSuccessHandler`, `RestLoginFailureHandler`) are self-contained with internal `JsonMapper` — do not inject beans.
+- Session persistence is explicitly configured via `HttpSessionSecurityContextRepository` in `SecurityConfig` — do not remove this or authenticated sessions will break.
 - Startup entry point is `HmsApplication`; no separate hexagonal/adaptor split yet.
 
 ## Request + Error Flow (Important)
@@ -54,20 +56,23 @@
 
 ## Jackson Conventions (Boot 4 Guardrail)
 - Spring Boot 4.0.5 brings **both** Jackson stacks on classpath (`com.fasterxml.jackson.*` 2.x and `tools.jackson.*` 3.x).
-- For this repo's security JSON handlers (`RestAuthenticationEntryPoint`, `RestAccessDeniedHandler`), use **Jackson 3** imports: `tools.jackson.*`.
+- For ALL security JSON handlers use **Jackson 3** imports: `tools.jackson.databind.json.JsonMapper` (NOT `tools.jackson.databind.JsonMapper` — that doesn't exist).
 - Keep security handlers **self-contained** (internal `JsonMapper`) instead of constructor-injecting a mapper bean; this avoids `@WebMvcTest` slice startup failures caused by mapper-bean resolution/order.
 - Do **not** "auto-correct" `tools.jackson.*` to `com.fasterxml.jackson.*` in security code without a full test pass.
 - If touching security JSON serialization, run:
   - `./mvnw test`
-  - `./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT" test`
+  - `./mvnw -Dtest="ApiSecurityErrorResponseIT,ApiValidationErrorResponseIT,RequestLoggingMdcIT,ApiTrainingInstanceCreateIT" test`
 
 ## Coding Patterns for This Repo
 - Keep REST paths under `/api/...` for API endpoints to retain JSON security error behavior.
 - Training create endpoint path is `/api/training/instances`.
+- Training read endpoints: `GET /api/training/instances` (list all), `GET /api/training/instances/{id}` (single).
+- Login endpoint is `POST /login` (form-encoded). Returns JSON 200 on success, JSON 401 on failure — does NOT redirect.
 - When adding business errors, prefer typed `DomainException` subclasses so responses carry stable `ErrorCode` values.
 - If you introduce DTO endpoints, wire `@Valid` + handler contract consistency (see phase2 integration test for expected JSON shape).
 - Preserve soft-delete and "single current version" semantics; these are core compliance behaviors.
 - Keep log messages useful for forensic tracing since MDC is already configured for request correlation.
+- `users` table must be seeded via `data_initialisation_v2.sql` before first login — empty table causes authentication failure.
 
 ## Recent Fixes (April 15-16, 2026)
 - **Issue 1:** Upgraded `mysql-connector-j` from 8.0.33 → 8.2.0 to resolve CVE-2023-22102 vulnerability.
@@ -78,3 +83,8 @@
 - **Issue 11:** Implemented training create service orchestration with transactional save to `training_instance`, `training_trainee`, and `training_document`.
 - **Issue 12:** Added training create API endpoint `POST /api/training/instances` and integration coverage in `ApiTrainingInstanceCreateIT`.
 - **Issue 13:** Switched login credential source from in-memory user to DB-backed `users` table via `UserDetailsServiceImpl` + `UserRepository`, with seeded `admin` in `docs/schema/data_initialisation_v2.sql`.
+- **Issue 14A:** Disabled Spring Boot's default in-memory user (`spring.security.user.name: disabled` in `application.yml`) to force Spring Security to use `UserDetailsServiceImpl`.
+- **Issue 14B:** Fixed 401 errors on API requests after login by explicitly configuring `HttpSessionSecurityContextRepository` in `SecurityConfig` to persist `SecurityContext` to HTTP session. Tests: 9/9 passing.
+- **Issue 14C:** Added `RestLoginSuccessHandler` (JSON 200 with username on success) and `RestLoginFailureHandler` (JSON 401 on bad credentials) to replace confusing HTML redirect responses. Both use `tools.jackson.databind.json.JsonMapper` (Jackson 3). Wired into `SecurityConfig.formLogin()`.
+- **Issue 15:** Added training read methods to `TrainingService` (`findAll()`, `findByTrainingInstanceId()`), bulk N+1-safe queries, and `GET /api/training/instances` + `GET /api/training/instances/{id}` endpoints to `TrainingController`. Response DTOs: `TrainingInstanceMultiResponse` (list), `TrainingInstanceSingleResponse` (detail/create).
+- **Issue 16:** Implemented compliance matrix service (`TrainingComplianceService`) with 4-state status enum (COMPLETE, OUTDATED_DOCUMENT, EXPIRED_TRAINING, INCOMPLETE). Added `GET /api/compliance/matrix` endpoint with optional filters (`?employeeId`, `?documentRefId`). Response includes employee list, document reference list with current version details (version string, document name, issue date), and nested status matrix. Status is derived dynamically, never stored. Bulk-fetches current versions (avoids N+1). Filter validation returns 404 for invalid/inactive entities. 27 tests passing (17 unit + 10 integration).
