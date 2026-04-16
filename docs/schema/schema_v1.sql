@@ -24,6 +24,7 @@
 -- ---------------------------------------------------------
 USE hygiene_app;
 SET time_zone = '+00:00';
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 SET FOREIGN_KEY_CHECKS = 0;
 
 
@@ -53,7 +54,7 @@ CREATE TABLE users (
                        active BOOLEAN NOT NULL DEFAULT TRUE,
                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -69,7 +70,7 @@ CREATE TABLE employee (
                           active BOOLEAN NOT NULL DEFAULT TRUE,
                           created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           updated_at TIMESTAMP NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -82,7 +83,7 @@ CREATE TABLE document_reference (
                                     mandatory BOOLEAN NOT NULL DEFAULT FALSE,
                                     active BOOLEAN NOT NULL DEFAULT TRUE,
                                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -99,10 +100,10 @@ CREATE TABLE document_version (
                                       CHECK (default_training_validity_days >= 0),
                                   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                  CONSTRAINT fk_docver_reference
-                                      FOREIGN KEY (document_reference_id)
-                                          REFERENCES document_reference(id),
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                  CONSTRAINT fk_document_version_reference
+                      FOREIGN KEY (document_reference_id)
+                          REFERENCES document_reference(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -120,12 +121,12 @@ CREATE TABLE training_instance (
                                        ) NOT NULL,
                                    training_start_date DATE NOT NULL,
                                    training_end_date DATE NOT NULL,
-                                   training_duration VARCHAR(50),
+                                   training_duration VARCHAR(50) NOT NULL,
                                    training_expiry_date DATE NOT NULL,
                                    comments TEXT,
-                                   trainer_signature VARCHAR(255),
+                                   trainer_signature VARCHAR(255) NOT NULL,
                                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -146,7 +147,7 @@ CREATE TABLE training_trainee (
 
                                   CONSTRAINT uq_training_employee
                                       UNIQUE (training_instance_id, employee_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -161,13 +162,13 @@ CREATE TABLE training_document (
                                        FOREIGN KEY (training_instance_id)
                                            REFERENCES training_instance(id),
 
-                                   CONSTRAINT fk_td_docver
+                                   CONSTRAINT fk_td_document_version
                                        FOREIGN KEY (document_version_id)
                                            REFERENCES document_version(id),
 
                                    CONSTRAINT uq_training_document
                                        UNIQUE (training_instance_id, document_version_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------
@@ -182,7 +183,7 @@ CREATE TABLE audit_log (
                            new_value TEXT,
                            performed_by VARCHAR(100) NOT NULL,
                            performed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ---------------------------------------------------------

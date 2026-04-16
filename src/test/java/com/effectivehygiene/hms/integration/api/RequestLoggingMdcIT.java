@@ -4,6 +4,7 @@ import com.effectivehygiene.hms.security.SecurityConfig;
 import com.effectivehygiene.hms.document.DocumentService;
 import com.effectivehygiene.hms.employee.EmployeeService;
 import com.effectivehygiene.hms.logging.LoggingContextFilter;
+import com.effectivehygiene.hms.training.TrainingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -29,6 +30,9 @@ class RequestLoggingMdcIT {
 
     @MockitoBean
     DocumentService documentService;
+
+    @MockitoBean
+    TrainingService trainingService;
 
     @Autowired
     MockMvc mockMvc;

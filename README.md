@@ -22,13 +22,18 @@ A compliance-oriented hygiene management platform built with **Spring Boot 4.0.5
    mysql -u root -p hygiene_app < docs/schema/schema_v1.sql
    ```
 
-3. **Run the app** (dev profile):
+3. **(Optional) load sample data including login user seed:**
+   ```bash
+   mysql -u root -p hygiene_app < docs/schema/data_initialisation_v2.sql
+   ```
+
+4. **Run the app** (dev profile):
    ```bash
    ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
    ```
    App runs on `http://localhost:8080`
 
-4. **Login:**
+5. **Login (if `data_initialisation_v2.sql` was loaded):**
    - Username: `admin`
    - Password: `admin123`
 
@@ -37,9 +42,9 @@ A compliance-oriented hygiene management platform built with **Spring Boot 4.0.5
 ### Modules
 - **Employee:** Manage employees (soft-delete, immutable audit trail)
 - **Document:** Manage document references and versions (immutable append-only)
-- **Training:** *Planned* — immutable training events with compliance tracking
+- **Training:** Create immutable training events (`POST /api/training/instances`)
+- **User/Auth:** Database-backed login (`users` table + `UserDetailsServiceImpl`)
 - **Audit:** *Planned* — append-only audit log
-- **User:** *Planned* — replace in-memory auth with database-backed users
 
 ### Key Design Principles
 - **Soft Delete:** Records are deactivated, never physically deleted
@@ -62,6 +67,9 @@ A compliance-oriented hygiene management platform built with **Spring Boot 4.0.5
 - `POST /api/documents/references/{id}/versions` — Create version
 - `GET /api/documents/references/{id}/versions` — List all versions
 - `GET /api/documents/references/{id}/versions/current` — Get current version
+
+### Training
+- `POST /api/training/instances` — Create immutable training instance (persists instance + trainees + documents atomically)
 
 ## Error Responses
 
@@ -90,9 +98,10 @@ Run focused integration tests:
 
 ## Documentation
 
-- **AGENTS.md** — Detailed architecture, domain rules, and coding patterns (for AI agents and developers)
-- **docs/schema/schema_v1.sql** — Database schema with all tables and constraints
-- **docs/schema/data_initialisation_v1.sql** — Sample data setup script
+- **`AGENTS.md`** — Detailed architecture, domain rules, and coding patterns (for AI agents and developers)
+- **`docs/schema/schema_v1.sql`** — Database schema with all tables and constraints
+- **`docs/schema/data_initialisation_v2.sql`** — Sample/seed data including dev login user
+- **`src/test/java/com/effectivehygiene/hms/util/HashGeneratorTest.java`** — Utility test to generate BCrypt hashes for manual SQL seeding
 
 ## Dependencies
 
@@ -106,10 +115,11 @@ Run focused integration tests:
 - Security handlers are intentionally **self-contained** (internal `JsonMapper`) to avoid `@WebMvcTest` mapper-bean ordering issues.
 - Do not auto-convert these handlers to `com.fasterxml.jackson.*` without running the focused integration tests.
 
-## Recent Fixes (April 15, 2026)
+## Recent Fixes (April 15-16, 2026)
 
 - ✅ Fixed MySQL Connector CVE-2023-22102 (upgraded to 8.2.0)
 - ✅ Standardized security error serialization on Boot 4/Jackson 3 conventions (`tools.jackson.*`) and removed mapper-bean coupling in security handlers
 - ✅ Added proper exception handler for `InactiveEntityException` (409 CONFLICT)
+- ✅ Switched authentication from in-memory credentials to DB-backed users (`UserRepository` + `UserDetailsServiceImpl`)
 
 See [AGENTS.md](AGENTS.md) for full architecture details and guardrails.
