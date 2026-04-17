@@ -1,8 +1,34 @@
 # HMS — Hygiene Management System
 
-A compliance-oriented hygiene management platform built with **Spring Boot 4.0.5**, **Java 17**, and **MySQL**, designed for historical traceability and auditability (BRC/QMS style).
+MVP Status - Training Module Backend
 
-## Quick Start
+HMS is a web application for management of hygiene department in food manufacturing compliant with BRC / FCCE*ISO 22000 standards.
+App focuses on compliance, auditability and historical accuracy of all records.
+
+Implemented in MVP:
+- Authenticated access with DB-backed users (single admin-style role)
+- Employee management with soft-delete (historical records preserved)
+- Document management with soft-delete, version management, validity periods
+- Document is split into Reference (Main document) and attached Version (Current and previous versions)
+- Training instance - historical immutable event - Training of employees A, B, C on documents X, Y, Z was completed by trainer X on date X
+- Employee x Documents training matrix from derived table that is created at the time of request. Returned statuses for each active pair:
+  COMPLETE, OUTDATED_DOCUMENT, EXPIRED_TRAINING, INCOMPLETE
+- UTC-first handling for timestamps and consistent API error responses for `/api/**`
+
+Current scope notes:
+- Employees are managed entities, not system users.
+- Training and compliance status are derived from records; status is not stored as mutable state.
+- Audit module exists in schema planning, but full audit-log feature is not yet active in runtime modules.
+
+Future Development (Post-MVP)
+Planned next phases focus on controlled expansion while preserving compliance invariants:
+- Append-only audit logging module with searchable audit API
+- Task scheduling and execution workflows
+- KPI/dashboard reporting and compliance trend views
+- Document file handling (PDF/image) and exports
+- Storage of full documents instead of only document references
+- Electronic signatures and notification/reminder workflows
+- Extended roles/permissions and (later) multi-site support## Quick Start
 
 ### Prerequisites
 - Java 17+
